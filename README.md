@@ -1,14 +1,14 @@
 ![logo](https://user-images.githubusercontent.com/8457808/38818082-db3aea62-4167-11e8-8e59-7af47131c087.png)
 
-# Trace
+# Greenchain
 
 > A transparent supply chain management platform with end users in mind.
 
-Trace is a decentralized application based on the Ethereum blockchain aiming to
+Greenchain is a decentralized application based on the Ethereum blockchain aiming to
 let consumers see the data behind the products they buy every day. It currently 
 allows industry experts to add products to the app, as well as create certifications
 that can be added to products. A mobile companion app (not developed yet) would 
-allow scanning Trace QR codes placed on the actual products to see the data
+allow scanning Greenchain QR codes placed on the actual products to see the data
 on-premise (e.g. at the grocery store).
 
 Keep in mind that **this is a proof of concept**. It is *not* production ready by any means. However, we do invite you to play around with the project and use it as you see fit. There are some rough edges, so we definitely appreciate your help in improving the platform.
@@ -58,7 +58,7 @@ Logo design by [Laurence Mailhiot](https://twitter.com/mailhiotlaur).
     npm run start
     ```
 
-    A browser window should then open automatically at `http://localhost:3000` (or whatever port you set manually). If you see the Trace home page, you're ready to go. Otherwise, if the page is stuck on "Waiting for Web3...", proceed to steps 5 and 6. 
+    A browser window should then open automatically at `http://localhost:3000` (or whatever port you set manually). If you see the Greenchain home page, you're ready to go. Otherwise, if the page is stuck on "Waiting for Web3...", proceed to steps 5 and 6. 
 
 5.  Install the [MetaMask browser extension](https://metamask.io/). Once installed, click on the MetaMask icon, then use the "Import Account" feature to create an account from a private key. Copy the first private key from the first few lines of output of `truffle develop` and paste it into the "Private Key" field in Metamask.
 

@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import QRCode from 'qrcode.react'
 import { Link } from 'react-router-dom'
-import { withGoogleMap, GoogleMap, Marker, Polyline } from "react-google-maps"
+import { GoogleMap, Marker, Polyline, withGoogleMap } from "react-google-maps"
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle'
@@ -14,10 +14,7 @@ import faHistory from '@fortawesome/fontawesome-free-solid/faHistory'
 
 import AnnotatedSection from '../components/AnnotatedSection'
 
-import {
-  Button,
-  Table
-} from 'reactstrap';
+import { Button, Table } from 'reactstrap';
 
 /*
   View component
@@ -43,12 +40,12 @@ class View extends Component {
   }
 
   // when initially loading the page, fetch the requested product
-  componentDidMount(){
+  componentDidMount() {
     this.fetchProduct(this.props);
   }
 
   // fetch a product from the blockchain by productId (optionally, a "versionId" of that product can be specified)
-  fetchProduct(props){
+  fetchProduct(props) {
 
     // get the requested product (at the requested version if specified, otherwise it gets the latest version)
     this.props.passageInstance.getProductById(String(props.match.params.productId).valueOf(), props.match.params.versionId ? String(props.match.params.versionId).valueOf() : "latest")
@@ -101,7 +98,7 @@ class View extends Component {
         return this.props.history.push('/');
       })
 
-    // also, we fetch the product's custom data fields and 
+    // also, we fetch the product's custom data fields and
     // add it to the rest of the product's data (in the component state)
     this.props.passageInstance.getProductCustomDataById(String(props.match.params.productId).valueOf(), props.match.params.versionId ? String(props.match.params.versionId).valueOf() : "latest")
       .then((result) => {
@@ -121,8 +118,9 @@ class View extends Component {
     // this is the JSX of the versions list section of the page
     const versionsList = this.state.versions.map((version, index) => {
       return (
-        <li key={index}>
-          <Link to={`/products/${this.props.match.params.productId}/versions/${version.id}`}>Version {index + 1}</Link>
+        <li key={ index }>
+          <Link
+            to={ `/products/${this.props.match.params.productId}/versions/${version.id}` }>Stanje { index + 1 }</Link>
         </li>
       )
     }).reverse()
@@ -130,8 +128,10 @@ class View extends Component {
     // this is the JSX of certifications list
     const certificationsList = this.state.certifications.map((certification, index) => {
       return (
-        <div style={{display:"inline-block", marginRight:"15px", width:"100px", height:"100px"}} key={index}>
-          {certification.imageUrl ? <img style={{width:"100%"}} alt={"Product has certification " + certification.name} src={certification.imageUrl}/> : <div>{certification.name}</div>}
+        <div style={ {display: "inline-block", marginRight: "15px", width: "100px", height: "100px"} } key={ index }>
+          { certification.imageUrl ?
+            <img style={ {width: "100%"} } alt={ "Product has certification " + certification.name }
+                 src={ certification.imageUrl }/> : <div>{ certification.name }</div> }
         </div>
       )
     })
@@ -143,37 +143,38 @@ class View extends Component {
     // array of map markers
     const markersJSX = this.state.versions.map((version, index) => {
       return (
-        <Marker key={index} label={(index + 1).toString()} position={{ lat: version.latitude, lng: version.longitude }} />
+        <Marker key={ index } label={ (index + 1).toString() }
+                position={ {lat: version.latitude, lng: version.longitude} }/>
       )
     })
 
     // array of the versions' positions
     const versionsLatLngs = this.state.versions.map((version, index) => {
-      return { lat: version.latitude, lng: version.longitude }
+      return {lat: version.latitude, lng: version.longitude}
     });
 
     // used to display a line between the various versions' position markers
     const polylineJSX = (
       <Polyline
-        path={versionsLatLngs}
+        path={ versionsLatLngs }
         geodesic
-        options={{
+        options={ {
           strokeColor: 'red',
           strokeOpacity: 0.5,
           strokeWeight: 4
-        }}
+        } }
       />
     )
 
     // the actual map component, which contains the markers and the line
     const MyMapComponent = withGoogleMap((props) =>
       <GoogleMap
-        defaultZoom={8}
-        defaultCenter={{ lat: currentLat, lng: currentLng }}
+        defaultZoom={ 8 }
+        defaultCenter={ {lat: currentLat, lng: currentLng} }
       >
         <div>
-          {markersJSX}
-          {polylineJSX}
+          { markersJSX }
+          { polylineJSX }
         </div>
       </GoogleMap>
     )
@@ -184,110 +185,116 @@ class View extends Component {
     // the actual JSX that we return is below
     return (
       <div>
-        {/* Product definition section */}
+        { /* Product definition section */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faInfoCircle}/>
-              Product definition
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faInfoCircle }/>
+              Informacije
             </div>
           }
           panelContent={
             <Table>
               <tbody>
-                <tr>
-                  <th scope="row">Name</th>
-                  <td>{this.state.name}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Description</th>
-                  <td>{this.state.description}</td>
-                </tr>
-                <tr>
-                  <th scope="row">Last updated on</th>
-                  <td>{this.state.versionCreationDate}</td>
-                </tr>
-                {
-                  Object.keys(customData).map(key =>
-                    <tr key={key}>
-                      <th scope="row">{key}</th>
-                      <td>{customData[key]}</td>
-                    </tr>
-                  )
-                }
+              <tr>
+                <th scope="row">Name</th>
+                <td>{ this.state.name }</td>
+              </tr>
+              <tr>
+                <th scope="row">Poslednji put azuriran</th>
+                <td>{ this.state.versionCreationDate }</td>
+              </tr>
+              {
+                Object.keys(customData).map(key =>
+                  <tr key={ key }>
+                    <th scope="row">{ key }</th>
+                    <td>{ customData[key] }</td>
+                  </tr>
+                )
+              }
               </tbody>
             </Table>
           }
         />
 
-        {/* QR code section */}
+        { /* QR code section */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faThumbtack}/>
-              Tracking information
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faThumbtack }/>
+              Identifikator
             </div>
           }
           panelContent={
             <div>
-              <QRCode value={this.props.match.params.productId}/>
+              <QRCode value={ this.props.match.params.productId }/>
               <div>
-                Unique product identifier
-                <pre>{this.state.id}</pre>
+                <pre>{ this.state.id }</pre>
               </div>
             </div>
           }
         />
 
-        {/* Actions section */}
+        { /* Actions section */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faWrench}/>
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faWrench }/>
               Actions
             </div>
           }
           panelContent={
             <div>
               { this.props.match.params.versionId && this.state.versions && this.state.versions.length > 0 && this.props.match.params.versionId.toString() !== this.state.versions.slice(-1)[0].id.toString() ?
-                  <Link to={"/products/" + this.props.match.params.productId}>
-                    <Button color="info">
-                      View latest version
-                    </Button>
-                  </Link>
+                <Link to={ "/products/" + this.props.match.params.productId }>
+                  <Button color="info">
+                    Pogledaj poslednje stanje
+                  </Button>
+                </Link>
                 :
-                  <Link to={"/products/" + this.props.match.params.productId + "/update"}>
-                    <Button color="success">
-                      Update product
-                    </Button>
-                  </Link>
+                <Link to={ "/products/" + this.props.match.params.productId + "/update" }>
+                  <Button color="success">
+                    Izmeni
+                  </Button>
+                </Link>
               }
-              <Link style={{marginLeft: "10px"}} to={"/products/" + this.props.match.params.productId + "/split"}>
+              <Link style={ {marginLeft: "10px"} }
+                    to={ "/products/" + this.props.match.params.productId + "/transport" }>
                 <Button color="warning">
-                  Split this product
+                  Transport
+                </Button>
+              </Link>
+              <Link style={ {marginLeft: "10px"} } to={ "/products/" + this.props.match.params.productId + "/storage" }>
+                <Button color="warning">
+                  Skladistenje
+                </Button>
+              </Link>
+              <Link style={ {marginLeft: "10px"} } to={ "/products/" + this.props.match.params.productId + "/split" }>
+                <Button color="warning">
+                  Tretman
                 </Button>
               </Link>
             </div>
           }
         />
 
-        {/* Google Maps section */}
+        { /* Google Maps section */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faMapMarker}/>
-              Location
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faMapMarker }/>
+              Lokacija
             </div>
           }
           panelContent={
             <div>
-              {currentLat && currentLng ? 
+              { currentLat && currentLng ?
                 <div>
-                  <pre>{currentLat}, {currentLng}</pre>
+                  <pre>{ currentLat }, { currentLng }</pre>
                   <MyMapComponent
-                    loadingElement={<div style={{ height: `100%` }} />}
-                    containerElement={<div style={{ height: `400px` }} />}
-                    mapElement={<div style={{ height: `100%` }} />}
+                    loadingElement={ <div style={ {height: `100%`} }/> }
+                    containerElement={ <div style={ {height: `400px`} }/> }
+                    mapElement={ <div style={ {height: `100%`} }/> }
                   />
                 </div>
                 :
@@ -297,33 +304,33 @@ class View extends Component {
           }
         />
 
-        {/* Certifications section */}
+        { /* Certifications section */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faCertificate}/>
-              Product certifications
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faCertificate }/>
+              Dozvola za upravljanje otpadom
             </div>
           }
           panelContent={
             <div>
-              {certificationsList && certificationsList.length > 0 ? certificationsList : "No certification."}
+              { certificationsList && certificationsList.length > 0 ? certificationsList : "Bez dozvole." }
             </div>
           }
         />
 
-        {/* Versions section */}
+        { /* Versions section */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faHistory}/>
-              Version history
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faHistory }/>
+              Istorijat stanja
             </div>
           }
           panelContent={
             <div>
               <ul>
-                {versionsList}
+                { versionsList }
               </ul>
             </div>
           }

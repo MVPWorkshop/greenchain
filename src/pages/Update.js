@@ -103,7 +103,7 @@ class Update extends Component {
     const inputProps = {
       value: this.state.address,
       onChange: this.onChange,
-      placeholder: "Location (exact address, latitude & longitude, business)"
+      placeholder: "Tacna lokacija"
     }
 
     return (
@@ -112,13 +112,13 @@ class Update extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faArrowAltCircleUp}/>
-              New information
+              Nove informacije
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                  <Label>Current location</Label>
+                  <Label>Lokacija</Label>
                   <PlacesAutocomplete
                     inputProps={inputProps}
                     onSelect={this.handleSelect}
@@ -131,16 +131,16 @@ class Update extends Component {
                   // render an input with the appropriate key/value pair
                   Object.keys(this.state.customDataInputs).map(inputKey =>
                     <FormGroup style={{display:"flex"}} key={inputKey}>
-                      <Input value={this.state.customDataInputs[inputKey].key} placeholder="Property (e.g. 'color')" style={{flex: 1, marginRight:"15px"}} onChange={(e) => {this.setState({ customDataInputs: {...this.state.customDataInputs, [inputKey]: {...this.state.customDataInputs[inputKey], key: e.target.value} }})}}/>
-                      <Input value={this.state.customDataInputs[inputKey].value} placeholder="Value (e.g. 'red')" style={{flex: 1}} onChange={(e) => {this.setState({ customDataInputs: {...this.state.customDataInputs, [inputKey]: {...this.state.customDataInputs[inputKey], value: e.target.value} }})}}/>
+                      <Input value={this.state.customDataInputs[inputKey].key} placeholder="Osobina (npr. boja)" style={{flex: 1, marginRight:"15px"}} onChange={(e) => {this.setState({ customDataInputs: {...this.state.customDataInputs, [inputKey]: {...this.state.customDataInputs[inputKey], key: e.target.value} }})}}/>
+                      <Input value={this.state.customDataInputs[inputKey].value} placeholder="Vrednost (npr. cena)" style={{flex: 1}} onChange={(e) => {this.setState({ customDataInputs: {...this.state.customDataInputs, [inputKey]: {...this.state.customDataInputs[inputKey], value: e.target.value} }})}}/>
                     </FormGroup>
                   )
                 }
                 <Link to="#" onClick={ () => this.appendInput() }>
-                  Add a custom data field
+                  Unesi dodatne informacije
                 </Link>
               </FormGroup>
-              <Button disabled={this.state.updateButtonDisabled} color="primary" onClick={this.handleUpdateProduct}>Créer une nouvelle version</Button>
+              <Button disabled={this.state.updateButtonDisabled} color="primary" onClick={this.handleUpdateProduct}>Sacuvaj izmene</Button>
             </div>
           }
         />

@@ -12,22 +12,26 @@ import NotFound from './pages/NotFound';
 import CombineScan from './pages/CombineScan';
 import CombineList from './pages/CombineList';
 import SplitProduct from './pages/SplitProduct';
+import Transport from "./pages/Transport";
+import Storage from "./pages/Storage";
 
 const Routes = () => (
   <Router>
     <App>
       <Switch>
-        <Route exact path="/" component={MyProducts} />
-        <Route exact path="/account" component={Account} />
-        <Route exact path="/create" component={Create} />
-        <Route exact path="/CreateCertification" component={CreateCertification} />
-        <Route exact path="/products/:productId" component={View} />
-        <Route exact path="/products/:productId/versions/:versionId" component={View} />
-        <Route exact path="/products/:productId/update" component={Update} />
-        <Route exact path="/products/:productId/split" component={SplitProduct} />
-        <Route exact path="/combineScan" component={CombineScan} />
-        <Route exact path="/combineList" component={CombineList} />
-        <Route path="*" component={NotFound} />
+        <Route exact path="/" component={ MyProducts }/>
+        <Route exact path="/nalog" component={ Account }/>
+        <Route exact path="/create" component={ Create }/>
+        <Route exact path="/CreateCertification" component={ CreateCertification }/>
+        <Route exact path="/products/:productId" component={ View }/>
+        <Route exact path="/products/:productId/versions/:versionId" component={ View }/>
+        <Route exact path="/products/:productId/update" component={ Update }/>
+        <Route exact path="/products/:productId/transport" component={ Transport }/>
+        <Route exact path="/products/:productId/storage" component={ Storage }/>
+        <Route exact path="/products/:productId/split" component={ SplitProduct }/>
+        <Route exact path="/combineScan" component={ CombineScan }/>
+        <Route exact path="/combineList" component={ CombineList }/>
+        <Route path="*" component={ NotFound }/>
       </Switch>
     </App>
   </Router>

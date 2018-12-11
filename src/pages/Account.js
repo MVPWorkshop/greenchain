@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
 import AnnotatedSection from '../components/AnnotatedSection'
 import UpdateGodUser from '../components/UpdateGodUser';
@@ -22,13 +22,13 @@ class Account extends Component {
     });
   }
 
-  componentDidMount(){
-    this.props.passageInstance.isUserGod({ from: this.props.web3Accounts[0] })
+  componentDidMount() {
+    this.props.passageInstance.isUserGod({from: this.props.web3Accounts[0]})
       .then((result) => {
         this.setState({isGod: result});
       });
 
-      this.props.passageInstance.getActorCertificationsIds({from: this.props.web3Accounts[0]})
+    this.props.passageInstance.getActorCertificationsIds({from: this.props.web3Accounts[0]})
       .then((result) => {
         result.map((certificationId) => {
           return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
@@ -50,21 +50,21 @@ class Account extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faUser}/>
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faUser }/>
               Account information
             </div>
           }
           panelContent={
             <div>
-              <div>Ethereum address : {this.props.web3Accounts[0]}</div>
-              <div>Ether balance : <span id="EtherBalance"></span></div>
+              <div>Ethereum adresa : { this.props.web3Accounts[0] }</div>
+              <div>ETH stanje : <span id="EtherBalance"></span></div>
             </div>
           }
         />
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faCertificate}/>
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faCertificate }/>
               Certifications
             </div>
           }
@@ -76,28 +76,31 @@ class Account extends Component {
                   // displays all available certifications
                   this.state.availableCertifications && this.state.availableCertifications.length > 0 ?
                     this.state.availableCertifications.map((certification, index) =>
-                      <tr key={index}>
-                        <td style={{ width: '45px' }}>
-                        {
-                          certification.imageUrl && certification.imageUrl.length > 0 ?
-                          <img src={certification.imageUrl} alt={certification.name} style={{ maxWidth: '27px', maxHeight: '27px' }}/>
-                          :
-                          <div style={{ width: '27px', height: '27px', background: '#c4c4c4' }}>&nbsp;</div>
-                        }
+                      <tr key={ index }>
+                        <td style={ {width: '45px'} }>
+                          {
+                            certification.imageUrl && certification.imageUrl.length > 0 ?
+                              <img src={ certification.imageUrl } alt={ certification.name }
+                                   style={ {maxWidth: '27px', maxHeight: '27px'} }/>
+                              :
+                              <div style={ {width: '27px', height: '27px', background: '#c4c4c4'} }>&nbsp;</div>
+                          }
                         </td>
-                        <td>{certification.name}</td>
+                        <td>{ certification.name }</td>
                       </tr>
                     )
                     :
-                    <tr><td>No certifications created yet.</td></tr>
+                    <tr>
+                      <td>Ni jedna dozvola trenutno ne postoji.</td>
+                    </tr>
                 }
                 </tbody>
               </table>
             </div>
           }
         />
-        {this.state.isGod &&
-          <UpdateGodUser />
+        { this.state.isGod &&
+        <UpdateGodUser/>
         }
       </div>
     );

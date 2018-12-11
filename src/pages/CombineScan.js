@@ -77,7 +77,7 @@ class CombineScan extends Component {
     const inputProps = {
       value: this.state.address,
       onChange: this.onChange,
-      placeholder: "Location (exact address, latitude & longitude, business)"
+      placeholder: "Tacna lokacija"
     }
 
     return (
@@ -86,7 +86,7 @@ class CombineScan extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faqrcode}/>
-              Product identifiers
+              Sifre otpada
             </div>
           }
           panelContent={
@@ -95,13 +95,13 @@ class CombineScan extends Component {
                 {
                   Object.keys(this.state.productParts).map(inputKey =>
                     <FormGroup style={{display:"flex"}} key={inputKey}>
-                      Product identifier: 
+                      Sifra otpada:
                       <Input placeholder="0x..." style={{flex: 1}} onChange={(e) => { this.setState({ productParts: {...this.state.productParts, [inputKey]: {...this.state.productParts[inputKey], key: inputKey, value: e.target.value} }})}}/>
                     </FormGroup>
                   )
                 }
                 <Link to="#" onClick={ () => this.appendInput() }>
-                  Add a product to combine
+                  Dodaj otpad za spajanje
                 </Link>
               </FormGroup>
             </div>
@@ -112,28 +112,23 @@ class CombineScan extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faStar}/>
-              Combined product data
+              Informacije o spojenom proizvodu
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                  <Label>Name</Label>
-                  <Input placeholder="Product name" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
+                  <Label>Sifra otpada</Label>
+                  <Input placeholder="Sifra otpada" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
               </FormGroup>
               <FormGroup>
-                  <Label>Description</Label>
-                  <Input placeholder="Product description" value={this.state.description} onChange={(e) => {this.setState({description: e.target.value})}}></Input>
-              </FormGroup>
-              <FormGroup>
-                  <Label>Current location</Label>
+                  <Label>Trenutna lokacija</Label>
                   <PlacesAutocomplete
                     inputProps={inputProps}
                     onSelect={this.handleSelect}
                     classNames={{input: "form-control"}}
                   />
               </FormGroup>
-              <p>Certifications and custom data can be modified after the merge.</p>
             </div>
           }
         />
@@ -142,12 +137,12 @@ class CombineScan extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faWrench}/>
-              Actions
+              Actionskcije
             </div>
           }
           panelContent={
             <div>
-              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleMergeProducts}>Combine products</Button>
+              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleMergeProducts}>Spoji otpad</Button>
             </div>
           }
         />

@@ -81,7 +81,7 @@ class CombineList extends Component {
   handleChange = (e) => {
     const certificationId = e.target.name;
     this.setState({selectedCertifications: {...this.state.selectedCertifications, [certificationId]: e.target.checked}})
-  }
+  };
 
   handleCreateNewProduct = () => {
     const selectedCertifications = this.state.selectedCertifications;
@@ -91,7 +91,7 @@ class CombineList extends Component {
         certificationsArray.push(key)
       }
       return false;
-    })
+    });
 
     var customDataObject = {}
     Object.keys(this.state.customDataInputs).map(inputKey => {
@@ -129,7 +129,7 @@ class CombineList extends Component {
           </FormGroup>
           <Link to={`/products/${product.id}`}>
             <div>
-              <b>{product.name || "Untitled product"}</b> &mdash; {product.description || "No description"}
+              <b>{product.name || "Otpad"}</b> &mdash; {product.description || "Otpad"}
               <hr/>
             </div>
           </Link>
@@ -140,7 +140,7 @@ class CombineList extends Component {
     const inputProps = {
       value: this.state.address,
       onChange: this.onChange,
-      placeholder: "Location (exact address, latitude & longitude, business)"
+      placeholder: "Tacna lokacija"
     }
 
     return (
@@ -149,15 +149,15 @@ class CombineList extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faList}/>
-              Product selection
+              Odabir otpada
             </div>
           }
           panelContent={
             <div>
-              {products && products.length > 0 ? products : 
+              {products && products.length > 0 ? products :
               <div>
-                You did not add any product yet.
-                <Link style={{marginLeft: "10px"}} to="/create">Add a product</Link>
+                Trenutno nema dodatog otpada
+                <Link style={{marginLeft: "10px"}} to="/create">Dodaj otpad</Link>
               </div>}
             </div>
           }
@@ -167,21 +167,17 @@ class CombineList extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faStar}/>
-              Combined product data
+              Informacije o spojenom proizvodu
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                  <Label>Name</Label>
-                  <Input placeholder="Product name" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
+                  <Label>Sifra otpada</Label>
+                  <Input placeholder="Sifra otpada" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
               </FormGroup>
               <FormGroup>
-                  <Label>Description</Label>
-                  <Input placeholder="Product description" value={this.state.description} onChange={(e) => {this.setState({description: e.target.value})}}></Input>
-              </FormGroup>
-              <FormGroup>
-                  <Label>Current location</Label>
+                  <Label>Lokacija</Label>
                   <PlacesAutocomplete
                     inputProps={inputProps}
                     onSelect={this.handleSelect}
@@ -190,12 +186,12 @@ class CombineList extends Component {
               </FormGroup>
               <FormGroup>
                 <Label>
-                  Certification(s)
-                  <Link style={{marginLeft: "10px"}} to="/createcertification">Create +</Link>
+                  Dozvole za upravljanje otpada
+                  <Link style={{marginLeft: "10px"}} to="/createcertification">Dodaj +</Link>
                 </Label>
                 <div>
                   {this.state.availableCertifications && this.state.availableCertifications.length > 0 ?
-                    this.state.availableCertifications.map((certification, index) => 
+                    this.state.availableCertifications.map((certification, index) =>
                       <div key={index}>
                         <input style={{marginRight: "5px"}} onChange={this.handleChange} name={certification.id} type="checkbox"></input>
                         <span>{certification.name}</span>
@@ -203,8 +199,8 @@ class CombineList extends Component {
                     )
                     :
                     <div style={{marginLeft:"15px"}}>
-                      No certification available.
-                      <Link style={{marginLeft: "10px"}} to="/createcertification">Create a certification</Link>
+                      Nema dozvola za upravljanje otpadom.
+                      <Link style={{marginLeft: "10px"}} to="/createcertification">Unesi dozvolu</Link>
                     </div>
                   }
                 </div>
@@ -216,12 +212,12 @@ class CombineList extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faWrench}/>
-              Actions
+              Akcije
             </div>
           }
           panelContent={
             <div>
-              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleCreateNewProduct}>Combine products</Button>
+              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleCreateNewProduct}>Spoji otpad</Button>
             </div>
           }
         />

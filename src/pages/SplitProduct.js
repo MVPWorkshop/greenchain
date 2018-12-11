@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import { Link } from 'react-router-dom'
 
@@ -8,119 +8,328 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faUngroup from '@fortawesome/fontawesome-free-solid/faObjectUngroup'
 import faWrench from '@fortawesome/fontawesome-free-solid/faWrench'
 
-import CreateProduct from './Create'
-
-import {
-  Button,
-  FormGroup,
-  Alert
-} from 'reactstrap';
+import { Button, FormGroup, Input, Label, } from 'reactstrap';
 
 class SplitProduct extends Component {
-
-  // TODO: get the product details to make sure we have the right information before showing the Update page
-  // TODO: before actually updating the product, check if there is a newer version (i.e. someone else updated the product before us)
-
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      latitude: '',
-      longitude: '',
-      buttonDisabled: false,
-      address: '',
-      customDataInputs: {}
-    }
-    this.onChange = (address) => this.setState({ address })
+      children: [],
+      availableCertifications: [],
+      certifications: [],
+    };
   }
 
   componentDidMount() {
-    this.params = this.props.match.params;
+    this.props.passageInstance.getProductById(
+      String(this.props.match.params.productId).valueOf(),
+      this.props.match.params.versionId ? String(this.props.match.params.versionId).valueOf() : "latest")
+      .then(result => {
+        this.setState({
+          name: result[0],
+          description: result[1],
+          latitude: parseFloat(result[2]),
+          longitude: parseFloat(result[3]),
+          versionCreationDate: new Date(result[4].c * 1000).toString(),
+          versions: [],
+          id: this.props.match.params.productId,
+          certifications: []
+        });
 
-    this.props.passageInstance.getProductCustomDataById(String(this.params.productId).valueOf(), this.params.versionId ? String(this.params.versionId).valueOf() : "latest")
+        const certificationsArray = result[6];
+        certificationsArray.map((certificationId) => {
+          return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
+            .then((certificationResult) => {
+              const certification = {
+                name: certificationResult[0],
+                imageUrl: certificationResult[1],
+                id: certificationId,
+              };
+              this.setState({
+                certifications: [...this.state.certifications, certification]
+              })
+            });
+        });
+
+        // then, we get the product's versions list
+        const versionsArray = result[5];
+        versionsArray.map((versionId) => {
+          this.props.passageInstance.getVersionLatLngById(String(versionId).valueOf())
+            .then((latLngResult) => {
+              const version = {
+                latitude: parseFloat(latLngResult[0]),
+                longitude: parseFloat(latLngResult[1]),
+                id: versionId,
+              };
+              this.setState({versions: [...this.state.versions, version]})
+            });
+          return false;
+        });
+      });
+
+    this.props.passageInstance.getProductCustomDataById(
+      String(this.props.match.params.productId).valueOf(),
+      this.props.match.params.versionId ? String(this.props.match.params.versionId).valueOf() : "latest"
+    )
       .then((result) => {
         const customData = JSON.parse(result);
-        Object.keys(customData).map(dataKey => {
-          const inputKey = this.appendInput();
-          return this.setState({
-            customDataInputs: {...this.state.customDataInputs, [inputKey]: {key: dataKey, value: customData[dataKey]}}
-          })
-        })
+
+        this.setState({
+          ...customData,
+        });
       })
       .catch((error) => {
+        console.error(error);
         this.setState({
           customDataJson: ""
         })
+      });
+
+    this.props.passageInstance.getActorCertificationsIds({from: this.props.web3Accounts[0]})
+      .then((result) => {
+        result.map((certificationId) => {
+          return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
+            .then((result) => {
+              const certification = {
+                name: result[0],
+                imageUrl: result[1],
+                id: certificationId,
+              };
+              return this.setState({availableCertifications: [...this.state.availableCertifications, certification]})
+            });
+        });
       })
   }
 
-  appendInput() {
-    var newInputKey = `input-${Object.keys(this.state.customDataInputs).length}`; // this might not be a good idea (e.g. when removing then adding more inputs)
-    this.setState({ customDataInputs: {...this.state.customDataInputs, [newInputKey]: {key: "", value: ""} }});
-    return newInputKey;
-  }
+  addChild = () => {
+    // eslint-disable-next-line no-unused-vars
+    const {children, availableCertifications, ...parent} = this.state;
 
-  handleSelect = (address) => {
-    this.setState({address, buttonDisabled: true})
+    this.setState({
+      children: [...children, Object.assign({}, parent)]
+    })
+  };
 
-    geocodeByAddress(this.state.address)
+  updateChildState = (index, key) => e => {
+    const children = this.state.children;
+    children[index][key] = e.target.value;
+
+    this.setState({
+      children: children,
+    });
+  };
+
+  updateChildAddress = (index) => address => {
+    const children = this.state.children;
+    children[index].address = address;
+
+    this.setState({
+      children: children,
+    });
+  };
+
+  handleGeoSelect = index => address => {
+    this.updateChildAddress(index)(address);
+
+    geocodeByAddress(address)
       .then(results => getLatLng(results[0]))
       .then(latLng => {
-        this.setState({latitude: latLng.lat, longitude: latLng.lng, buttonDisabled: false})
+        const children = this.state.children;
+        children[index].latitude = latLng.lat;
+        children[index].longitude = latLng.lng;
+
+        this.setState({
+          children: children,
+        });
       })
       .catch(error => console.error('Error', error))
-  }
+  };
 
-  handleUpdateProduct = () => {
+  handleCertificationSelect = index => (e) => {
+    const certificationId = e.target.name;
 
-    var customDataObject = {}
-    Object.keys(this.state.customDataInputs).map(inputKey => {
-      return customDataObject[this.state.customDataInputs[inputKey].key] = this.state.customDataInputs[inputKey].value;
+    const children = this.state.children;
+    children[index].certifications = {
+      ...children[index].certifications,
+      [certificationId]: e.target.checked
+    };
+
+    this.setState({
+      children: children,
+    });
+
+    this.setState({certifications: {...this.state.certifications, [certificationId]: e.target.checked}})
+  };
+
+  productDescription = (product) => {
+    if (!product.Kategorija) {
+      return "Otpad"
+    }
+
+    return `${product.Podkategorija} - ${product["Kolicina (kg)"]} kg`
+  };
+
+  handleSplitProduct = () => {
+    const {children} = this.state;
+
+    children.forEach(child => {
+      let data = Object.assign({}, child);
+      delete data.name;
+      delete data.description;
+      delete data.latitude;
+      delete data.longitude;
+      delete data.certifications;
+      delete data.availableCertifications;
+      delete data.id;
+      delete data.versionCreationDate;
+      delete data.versions;
+
+      console.log("Child:", child);
+      console.log("Additional data", data);
+
+      return this.props.passageInstance.splitProduct(
+        String(this.props.match.params.productId).valueOf(),
+        child.name,
+        this.productDescription(child),
+        child.latitude ? child.latitude.toString() : this.state.latitude.toString(),
+        child.latitude ? child.longitude.toString() : this.state.longitude.toString(),
+        Object.keys(child.certifications)
+          .filter(cert => child.certifications[cert] === true),
+        JSON.stringify(data), {
+          from: this.props.web3Accounts[0],
+
+          gas: 1000000
+        });
     })
+  };
 
-    this.props.passageInstance.updateProduct(String(this.params.productId).valueOf(), this.state.latitude.toString(), this.state.longitude.toString(), JSON.stringify(customDataObject), {from: this.props.web3Accounts[0], gas:1000000})
-      .then((result) => {
-        // redirect to the product page
-        return this.props.history.push('/products/' + this.params.productId);
-      })
-  }
+  renderProductForm = index => {
+    const data = this.state.children[index];
+
+    return (
+      <div key={ index } style={ {marginBottom: 40} }>
+        <FormGroup>
+          <Label>Sifra tretiranog otpada</Label>
+          <Input placeholder="Sifra otpada" value={ data.name } onChange={ this.updateChildState(index, "name") }/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Vlasnik</Label>
+          <Input disabled placeholder="Vlasnik" value={ data["Vlasnik"] }/>
+        </FormGroup>
+        <FormGroup>
+          <Label>Tip otpada</Label>
+          <Input type="select" defaultValue={ data["Kategorija"] }
+                 onChange={ this.updateChildState(index, "Kategorija") }>
+            <option disabled value="" key="none">(izaberite)</option>
+            <option value="PET" key="PET">PET</option>
+          </Input>
+          { data["Podkategorija"] &&
+          <Input type="select"
+                 defaultValue={ data["Podkategorija"] }
+                 onChange={ this.updateChildState(index, "Podkategorija") }
+                 style={ {marginTop: 10} }>
+            <option disabled value="" key="none">(izaberite)</option>
+            <option value="15 01 02 - Plastična ambalaža" key="15 01 02 - Plastična ambalaža">
+              15 01 02 - Plastična ambalaža
+            </option>
+            <option value="02 01 04 - Otpadna plastika" key="02 01 04 - Otpadna plastika">
+              02 01 04 - Otpadna plastika
+            </option>
+          </Input> }
+        </FormGroup>
+        <FormGroup>
+          <Label>Nacin Pakovanja</Label>
+          <Input type="select" defaultValue={ data["Nacin Pakovanja"] } onChange={ this.updateChildState(index, "Format") }>
+            <option disabled value="">(izaberite)</option>
+            <option value="Bala">Bala</option>
+            <option value="Rinfuz">Rinfuz</option>
+          </Input>
+        </FormGroup>
+        <FormGroup>
+          <Label>Tip Otpada</Label>
+          <Input type="select" defaultValue={ data["Vrsta"] } onChange={ this.updateChildState(index, "Vrsta") }>
+            <option disabled value="">(izaberite)</option>
+            <option value="Opasan otpad">Opasan otpad</option>
+            <option value="Neopasan otpad">Neopasan otpad</option>
+            <option value="Energent">Energent</option>
+            <option value="Reciklat">Reciklat</option>
+          </Input>
+        </FormGroup>
+        <FormGroup>
+          <Label>Kolicina (kg)</Label>
+          <Input placeholder='npr. 1000' type='number' value={ data["Kolicina (kg)"] || '' }
+                 onChange={ this.updateChildState(index, "Kolicina (kg)") }/>
+        </FormGroup>
+        <FormGroup>
+          <Label>
+            Dozvole za upravljanje otpadom
+          </Label>
+          <div>
+            {
+              // displays all available certifications
+              this.state.availableCertifications && this.state.availableCertifications.length > 0 ?
+                this.state.availableCertifications.map((certification, index) =>
+                  <div key={ index }>
+                    <input style={ {marginRight: "5px"} } onChange={ this.handleCertificationSelect(index) }
+                           name={ certification.id }
+                           type="checkbox"/>
+                    <span>{ certification.name }</span>
+                  </div>
+                )
+                :
+                <div style={ {marginLeft: "15px"} }>
+                  Nema dostupnih dozvola.
+                  <Link style={ {marginLeft: "10px"} } to="/createcertification">Unesi dozvolu</Link>
+                </div>
+            }
+          </div>
+        </FormGroup>
+      </div>
+    );
+  };
 
   render() {
+    let indexes = [];
+    for (let i = 0; i < this.state.children.length; i++) {
+      indexes.push(i);
+    }
+
     return (
       <div>
-        <Alert color="warning">The "Split product" feature is not ready. Use this page with caution.</Alert>
-        {/* Section des produits */}
+        { /* Section des produits */ }
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faUngroup}/>
-              By-products
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faUngroup }/>
+              Tretman otpada
             </div>
           }
           panelContent={
             <div>
+              <h2>Rezultat tretiranja</h2>
               <FormGroup>
-                {
-                  <CreateProduct/>
-                }
-                <Link to="#" onClick={ () => this.appendInput() }>
-                  Add a by-product
+                { indexes.map(index => {
+                  return this.renderProductForm(index)
+                }) }
+                <Link to="#" onClick={ () => this.addChild() }>
+                  Dodaj
                 </Link>
               </FormGroup>
             </div>
           }
         />
 
-        {/* Section des actions */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faWrench}/>
-              Actions
+              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faWrench }/>
+              Akcije
             </div>
           }
           panelContent={
             <div>
-              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleCreateNewProduct}>Split product</Button>
+              <Button disabled={ this.state.buttonDisabled } color="primary" onClick={ this.handleSplitProduct }>Tretiraj
+                otpad</Button>
             </div>
           }
         />

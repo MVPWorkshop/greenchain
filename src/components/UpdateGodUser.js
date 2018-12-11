@@ -29,7 +29,7 @@ class UpdateGodUser extends Component {
   handleUpdateGodUser = () => {
     this.props.passageInstance.updateGodUser(this.state.newGodAddress, {from: this.props.web3Accounts[0], gas:1000000})
       .then((result) => {
-        notify.show("Administrator updated.", "custom", 5000, { background: '#50b796', text: "#FFFFFF" });
+        notify.show("Administrator azuriran.", "custom", 5000, { background: '#50b796', text: "#FFFFFF" });
       })
   }
 
@@ -39,17 +39,17 @@ class UpdateGodUser extends Component {
         annotationContent={
           <div>
             <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faUserPlus}/>
-            Transfer administration rights
+            Prebaci administrativna prava
           </div>
         }
         panelContent={
           <div>
             <FormGroup>
-              <Label>New administrator's Ethereum address</Label>
+              <Label>Ethereum adresa novog administratora</Label>
               <InputGroup>
                 <Input placeholder="0x..." value={this.state.newGodAddress} onChange={(e) => {this.setState({newGodAddress: e.target.value})}}></Input>
                 <InputGroupAddon addonType="append">
-                  <Button style={{borderBottomLeftRadius:"0", borderTopLeftRadius:"0"}} color="primary"  onClick={this.handleUpdateGodUser}>Update</Button>
+                  <Button style={{borderBottomLeftRadius:"0", borderTopLeftRadius:"0"}} color="primary"  onClick={this.handleUpdateGodUser}>Azuriraj</Button>
                 </InputGroupAddon>
               </InputGroup>
             </FormGroup>

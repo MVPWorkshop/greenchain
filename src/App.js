@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link, withRouter } from 'react-router-dom'
-import {connect} from 'react-redux';
-import Notifications, {notify} from 'react-notify-toast'
+import { connect } from 'react-redux';
+import Notifications, { notify } from 'react-notify-toast'
 
 import PassageMainContractJson from '../build/contracts/PassageMain.json'
 import getWeb3 from './utils/getWeb3'
@@ -10,15 +10,7 @@ import blockies from 'ethereum-blockies-png'
 
 import * as mainActions from './actions/mainActions'
 
-import {
-  Collapse,
-  Navbar,
-  NavbarToggler,
-  Nav,
-  NavItem,
-  NavLink,
-  Container,
-} from 'reactstrap';
+import { Collapse, Container, Nav, Navbar, NavbarToggler, NavItem, NavLink, } from 'reactstrap';
 
 class App extends Component {
 
@@ -75,64 +67,83 @@ class App extends Component {
         // upon product creation, redirect to the home page and show a notification
         const event = instance.ProductCreated({owner: this.props.web3Accounts[0]}) // TODO: extract event watchers into a new method/class?
         event.watch((error, result) => {
-          if (!error){
+          if (!error) {
             this.props.history.push('/');
-            notify.show("Product created.", "custom", 5000, { background: '#50b796', text: "#FFFFFF" });
+            notify.show("Product created.", "custom", 5000, {background: '#50b796', text: "#FFFFFF"});
           } else {
             console.log(error);
           }
         });
-       
+
       })
     })
   }
 
   render() {
-    const bodyColor = "hsl(136.7, 25%, 98.1%)";
+    const bodyColor = "#F5F5F5";
 
     const appJSX = (
-      <div style={{minHeight:"100vh", borderTop:"4px solid #50b796", backgroundColor: "black", fontFamily: "Barlow"}}>
+      <div style={ {
+        minHeight: "100vh",
+        borderTop: "4px solid #50b796",
+        backgroundColor: "black",
+        fontFamily: "Barlow"
+      } }>
         <Notifications/>
-        <Navbar color="faded" light style={{paddingTop: "1em", paddingBottom:"2em", backgroundColor: bodyColor}} expand="md">
+        <Navbar color="faded" light
+                style={ {paddingTop: "1em", paddingBottom: "2em", backgroundColor: bodyColor} } expand="md">
           <Container>
-            <Link to='/'><img alt="Logo Trace" style={{width:"130px", marginRight: "20px"}} src="/logo-black.svg"/></Link>
-            <NavbarToggler onClick={this.toggle} />
-            <Collapse isOpen={this.state.isOpen} navbar>
+            <Link to='/'><img alt="Logo Greenchain" style={{width:"200px", marginRight: "20px"}} src="/logo-greenchain.png"/></Link>
+            {/*<Link to='/'>*/}
+                {/*<span style={ {width: "130px", marginRight: "20px", fontSize: "1.5rem"} }>*/}
+                  {/*Greenchain*/}
+                {/*</span>*/}
+            {/*</Link>*/}
+            <NavbarToggler onClick={ this.toggle }/>
+            <Collapse isOpen={ this.state.isOpen } navbar>
               <Nav className="ml-auto" navbar>
                 <NavItem>
-                  <NavLink tag={Link} to="/account">
-                    My account
-                    <img alt="Profile avatar" style={{marginLeft: "10px", width:"20px", height:"20px", borderRadius:"3px"}} src={blockies.createDataURL({ scale: 5, seed: this.props.web3 && this.props.passageInstance && this.props.web3Accounts ? this.props.web3Accounts[0] : ""})}/>
+                  <NavLink tag={ Link } to="/nalog">
+                    Moj nalog
+                    <img alt="Profile avatar" style={ {
+                      marginLeft: "10px",
+                      width: "20px",
+                      height: "20px",
+                      borderRadius: "3px"
+                    } } src={ blockies.createDataURL({
+                      scale: 5,
+                      seed: this.props.web3 && this.props.passageInstance && this.props.web3Accounts ? this.props.web3Accounts[0] : ""
+                    }) }/>
                   </NavLink>
                 </NavItem>
               </Nav>
             </Collapse>
           </Container>
         </Navbar>
-        <div style={{backgroundColor: bodyColor, paddingBottom: "3em"}}>
+        <div style={ {backgroundColor: bodyColor, paddingBottom: "3em"} }>
           <Container>
-            {this.props.children}
+            { this.props.children }
           </Container>
         </div>
-        <div style={{padding: "2em 0", color:"white", backgroundColor: "#000000"}}>
+        <div style={ {padding: "2em 0", color: "white", backgroundColor: "#000000"} }>
           <Container>
-            © 2018 Trace
+            © 2018 Greenchain
           </Container>
         </div>
       </div>
     )
 
     const waitingForWeb3JSX = (
-      <div style={{
+      <div style={ {
         textAlign: "center",
         padding: "1em"
-      }}>
-        Waiting for web3...
-      </div>      
+      } }>
+        Cekam web3...
+      </div>
     )
     return (
       <div>
-        {this.props.web3 && this.props.passageInstance && this.props.web3Accounts ? appJSX : waitingForWeb3JSX}
+        { this.props.web3 && this.props.passageInstance && this.props.web3Accounts ? appJSX : waitingForWeb3JSX }
       </div>
     );
   }

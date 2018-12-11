@@ -37,24 +37,24 @@ class CreateCertification extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faCertificate}/>
-              New certification
+              Nova dozvola za upravljanje otpadom
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                  <Label>Certification name</Label>
-                  <Input placeholder="Certification name" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
+                  <Label>Sifra dozvole</Label>
+                  <Input placeholder="Ime sretifikata" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}/>
               </FormGroup>
               <FormGroup>
-                  <Label>Certification agency's address</Label>
-                  <Input placeholder="0x..." value={this.state.certificationOwner} onChange={(e) => {this.setState({certificationOwner: e.target.value})}}></Input>
+                  <Label>Adresa entiteta koja poseduje dozvolu</Label>
+                  <Input placeholder="0x..." value={this.state.certificationOwner} onChange={(e) => {this.setState({certificationOwner: e.target.value})}}/>
               </FormGroup>
               <FormGroup>
-                  <Label>Certification image URL</Label>
-                  <Input placeholder="https://" value={this.state.imageUrl} onChange={(e) => {this.setState({imageUrl: e.target.value})}}></Input>
+                  <Label>Slika dozvole</Label>
+                  <Input placeholder="https://" value={this.state.imageUrl} onChange={(e) => {this.setState({imageUrl: e.target.value})}}/>
               </FormGroup>
-              <Button color="primary" onClick={this.handleCreateNewCertification}>Create certification</Button>
+              <Button color="primary" onClick={this.handleCreateNewCertification}>Sacuvaj dozvolu</Button>
             </div>
           }
         />

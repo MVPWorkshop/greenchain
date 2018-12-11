@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve Trace
+about: Create a report to help us improve Greenchain
 
 ---
 

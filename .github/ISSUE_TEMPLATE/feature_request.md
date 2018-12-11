@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for Trace
+about: Suggest an idea for Greenchain
 
 ---
 

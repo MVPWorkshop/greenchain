@@ -34,12 +34,12 @@ class MyProducts extends Component {
                 versionCreationDate: Date(result[4]),
                 versions: result[5],
                 id: productId,
-              }
+              };
               this.setState({products: [...this.state.products, product]})
             })
             .catch((error) => {
               console.log(error);
-            })
+            });
           return false;
         })
       });
@@ -50,12 +50,12 @@ class MyProducts extends Component {
       return (
         <Link key={index} to={`/products/${product.id}`}>
           <div key={index}>
-            <b>{product.name || "Untitled product"}</b> &mdash; {product.description || "No description"}
+            <b>{product.name || "Otpad"}</b> &mdash; {product.description || "Otpad"}
             <hr/>
           </div>
         </Link>
       )
-    })
+    });
 
     return (
       <div>
@@ -63,7 +63,7 @@ class MyProducts extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faSearch}/>
-              View a product
+              Pretrazi otpad
             </div>
           }
           panelContent={
@@ -76,16 +76,16 @@ class MyProducts extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faList}/>
-              My products
-              <Link style={{marginLeft: "10px"}} to="/create">Create +</Link>
+              Lista otpada
+              <Link style={{marginLeft: "10px"}} to="/create">Napravi +</Link>
             </div>
           }
           panelContent={
             <div>
-              {products && products.length > 0 ? products : 
+              {products && products.length > 0 ? products :
               <div>
-                You did not create a product yet.
-                <Link style={{marginLeft: "10px"}} to="/create">Create a product</Link>
+                Ne postoji registrovan otpad.
+                <Link style={{marginLeft: "10px"}} to="/create">Unesi Otpad</Link>
               </div>}
             </div>
           }
@@ -94,16 +94,16 @@ class MyProducts extends Component {
           annotationContent={
             <div>
               <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faGroup}/>
-              Combine products
+              Spoji otpad
             </div>
           }
           panelContent={
             <div>
               <div>
-                <Link style={{marginLeft: "10px"}} to="/combineList">List mode</Link>
+                <Link style={{marginLeft: "10px"}} to="/combineList">Preko liste</Link>
               </div>
               <div>
-                <Link style={{marginLeft: "10px"}} to="/combineScan">QR scan mode</Link>
+                <Link style={{marginLeft: "10px"}} to="/combineScan">Preko QR koda</Link>
               </div>
             </div>
           }

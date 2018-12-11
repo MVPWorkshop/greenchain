@@ -1,27 +1,28 @@
 pragma solidity ^0.4.19;
+pragma experimental ABIEncoderV2;
 
 import "./PassageHelper.sol";
 import "./Dictionary.sol";
 
 contract PassageMain is PassageHelper {
-        
+
     using DictionaryBytes32Uint for DictionaryBytes32Uint.Data;
-    DictionaryBytes32Uint.Data private dic;    
+    DictionaryBytes32Uint.Data private dic;
 
     function PassageMain() public {
-      // Creator of the contract is default God
-      godUser = msg.sender;
+        // Creator of the contract is default God
+        godUser = msg.sender;
     }
-    
+
     function createProduct(
-      string _name,
-      string _description,
-      string _latitude,
-      string _longitude,
-      bytes32[] _certificationsIds,
-      string _customJsonData
+        string _name,
+        string _description,
+        string _latitude,
+        string _longitude,
+        bytes32[] _certificationsIds,
+        string _customJsonData
     ) public returns (bytes32 productId) {
-    
+
         // Generate a pseudo-random product ID
         // from the current time and the sender's address
         bytes32 newProductId = keccak256(now, msg.sender);
@@ -31,8 +32,10 @@ contract PassageMain is PassageHelper {
 
         // Define product
         product.productId = newProductId;
-        product.latestVersionId = "0"; // temporary value that gets replaced in updateProduct()
-        product.versions = new bytes32[](0); // empty array at first
+        product.latestVersionId = "0";
+        // temporary value that gets replaced in updateProduct()
+        product.versions = new bytes32[](0);
+        // empty array at first
         product.exists = true;
         product.archived = false;
         product.owner = msg.sender;
@@ -57,10 +60,10 @@ contract PassageMain is PassageHelper {
     }
 
     function updateProduct(
-      bytes32 _productId, 
-      string _latitude, 
-      string _longitude,
-      string _customJsonData
+        bytes32 _productId,
+        string _latitude,
+        string _longitude,
+        string _customJsonData
     ) public productIdExists(_productId) noChildren(_productId) {
         // TODO: add ownerOf modifier (causes 'revert' error when added, let's try to debug and fix that)
         // TODO: check if msg.sender == product owner OR if msg.sender is god
@@ -95,29 +98,106 @@ contract PassageMain is PassageHelper {
         product.latestVersionId = newVersionId;
     }
 
+    function splitProduct(
+        bytes32 _productId,
+        string _name,
+        string _description,
+        string _latitude,
+        string _longitude,
+        bytes32[] _certificationsIds,
+        string _customJsonData
+    ) public productIdExists(_productId) noChildren(_productId) {
+        // Get base product from storage
+        Product storage product = productIdToProductStruct[_productId];
+
+        // from the current time and the sender's address
+        bytes32 childId = keccak256(now, msg.sender);
+
+        // Create product
+        var child = productIdToProductStruct[childId];
+
+        //////////////////////////
+        // Update child product //
+        //////////////////////////
+
+        // Define product
+        child.productId = childId;
+        child.versions = product.versions;
+        // empty array at first
+        child.exists = true;
+        child.owner = msg.sender;
+
+        child.name = _name;
+        child.description = _description;
+        child.certificationsIds = _certificationsIds;
+
+        // Add new product ID
+        productIds.push(childId);
+
+        // Add product ID to account
+        ownerToProductsId[msg.sender].push(childId);
+
+        // Create initial product version
+        updateProduct(childId, _latitude, _longitude, _customJsonData);
+
+        ////////////////////////
+        // Create new version //
+        ////////////////////////
+
+        // Generate a pseudo-random product ID
+        // from the current time, the sender's address, and the productId
+        bytes32 newVersionId = keccak256(now, msg.sender, childId);
+
+        // Create product version
+        var version = versionIdToVersionStruct[newVersionId];
+
+        // Define new version
+        version.versionId = newVersionId;
+        version.creationDate = now;
+        version.previousVersionId = product.latestVersionId;
+        version.owner = product.owner;
+
+        version.latitude = _latitude;
+        version.longitude = _longitude;
+        version.customJsonData = _customJsonData;
+
+        // Save new product version ID
+        productVersionIds.push(newVersionId);
+
+        //////////////////////////////////////
+        // Associate version to new product //
+        //////////////////////////////////////
+
+        // Add new version ID to product
+        child.versions.push(newVersionId);
+        child.latestVersionId = newVersionId;
+
+        product.archived = true;
+    }
+
     function getProductById(bytes32 _productId, bytes32 specificVersionId) external view productIdExists(_productId)
     returns (string name, string description, string _latitude, string _longitude, uint versionCreationDate, bytes32[] versions, bytes32[] certificationsIds) {
 
-      // Get the requested product from storage
-      Product storage product = productIdToProductStruct[_productId];
+        // Get the requested product from storage
+        Product storage product = productIdToProductStruct[_productId];
 
-      // Initialize a variable that will hold the requested product version struct
-      ProductVersion storage requestedVersion;
+        // Initialize a variable that will hold the requested product version struct
+        ProductVersion storage requestedVersion;
 
-      if (specificVersionId == "latest") {
-        // Get the latest product version
-        requestedVersion = versionIdToVersionStruct[product.latestVersionId];
+        if (specificVersionId == "latest") {
+            // Get the latest product version
+            requestedVersion = versionIdToVersionStruct[product.latestVersionId];
 
-      } else {
-        // Get the requested product version
-        requestedVersion = versionIdToVersionStruct[specificVersionId];
-      }
+        } else {
+            // Get the requested product version
+            requestedVersion = versionIdToVersionStruct[specificVersionId];
+        }
 
-      // Return the requested data
-      return (product.name, product.description, requestedVersion.latitude, requestedVersion.longitude, requestedVersion.creationDate, product.versions, product.certificationsIds);
+        // Return the requested data
+        return (product.name, product.description, requestedVersion.latitude, requestedVersion.longitude, requestedVersion.creationDate, product.versions, product.certificationsIds);
 
-      // TODO: return the product versions using another function (i.e. getProductVersions(_productId))
-      // instead of directly (as above)
+        // TODO: return the product versions using another function (i.e. getProductVersions(_productId))
+        // instead of directly (as above)
     }
 
     function getProductCustomDataById(bytes32 _productId, bytes32 specificVersionId) external view productIdExists(_productId)
@@ -130,12 +210,12 @@ contract PassageMain is PassageHelper {
         ProductVersion storage requestedVersion;
 
         if (specificVersionId == "latest") {
-          // Get the latest product version
-          requestedVersion = versionIdToVersionStruct[product.latestVersionId];
+            // Get the latest product version
+            requestedVersion = versionIdToVersionStruct[product.latestVersionId];
 
         } else {
-          // Get the requested product version
-          requestedVersion = versionIdToVersionStruct[specificVersionId];
+            // Get the requested product version
+            requestedVersion = versionIdToVersionStruct[specificVersionId];
         }
 
         // Return the requested data
@@ -145,10 +225,10 @@ contract PassageMain is PassageHelper {
         // instead of directly (as above)
     }
 
-    function saveProductChildren(bytes32 _originalProductId, bytes32[] _newProductIds) public 
+    function saveProductChildren(bytes32 _originalProductId, bytes32[] _newProductIds) public
     productIdExists(_originalProductId) productIdsExist(_newProductIds) {
-      
-        /* 
+
+        /*
         // TODO in the UI:
         - Scan a product (view)
         - Split product (button)
@@ -162,7 +242,7 @@ contract PassageMain is PassageHelper {
         }
     }
 
-    function combineProducts(bytes32[] _parts, string _name, string _description, string _latitude, string _longitude) public 
+    function combineProducts(bytes32[] _parts, string _name, string _description, string _latitude, string _longitude) public
     returns (bytes32 newProductId) {
 
         bytes32[] memory finalCertificationIds = mergeCertifications(_parts);
@@ -177,7 +257,7 @@ contract PassageMain is PassageHelper {
     }
 
     function mergeCertifications(bytes32[] parts) private returns (bytes32[] certificationsIds) {
-        
+
         // Add all used certifications to dictionary
         for (uint i = 0; i < parts.length; ++i) {
             var product = productIdToProductStruct[parts[i]];
@@ -190,7 +270,8 @@ contract PassageMain is PassageHelper {
         // Keep certifications that are used by every part
         uint nbCertsCombined = 0;
         bytes32[] memory dicKeys = dic.keys();
-        bytes32[] memory certsIds = new bytes32[](parts.length * 5); // Hardcoded limits for current POF
+        bytes32[] memory certsIds = new bytes32[](parts.length * 5);
+        // Hardcoded limits for current POF
         for (uint k = 0; k < dicKeys.length; ++k) {
             if (dic.get(dicKeys[k]) == parts.length) {
                 certsIds[k] = dicKeys[k];
@@ -227,7 +308,7 @@ contract PassageMain is PassageHelper {
         string _imageUrl,
         address _certificationOwner
     ) public returns (bytes32 certificationId) {
-    
+
         // Generate a pseudo-random certification ID
         // from the current time, the certification name, and the sender's address
         bytes32 newCertificationId = keccak256(now, _name, msg.sender);
