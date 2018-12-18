@@ -90,7 +90,8 @@ class Create extends Component {
     customDataObject["Vlasnik"] = "Komanija A DOO";
     customDataObject["Kategorija"] = this.state.selectedCategory;
     customDataObject["Podkategorija"] = this.state.selectedSubcategory;
-    customDataObject["Vrsta"] = this.state.type;
+    customDataObject["Tip Otpada"] = this.state.type;
+    customDataObject["Vrsta Otpada"] = this.state.vrsta;
     customDataObject["Pripadnost Q Listi"] = this.state.qlista;
     customDataObject["Nacin Pakovanja"] = this.state.format;
     customDataObject["Kolicina (kg)"] = this.state.weight;
@@ -269,8 +270,6 @@ navedenim kategorijama">
                 <Label>Nacin Pakovanja</Label>
                 <Input type="select" defaultValue="" onChange={ this.updateInputState("format") }>
                   <option disabled value="">(izaberite)</option>
-                  дрвено буре, канистер, сандук, кесе, посуде под притиском, композитно паковање, у расутом стању,
-                  остало (прецизирати)
                   <option value="Bala">Bala</option>
                   <option value="Rinfuz">Rinfuz</option>
                   <option value="Drveno Bure">Drveno Bure</option>

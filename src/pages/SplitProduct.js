@@ -198,7 +198,7 @@ class SplitProduct extends Component {
         JSON.stringify(data), {
           from: this.props.web3Accounts[0],
 
-          gas: 1000000
+          gas: 800000000
         });
     })
   };
@@ -217,37 +217,24 @@ class SplitProduct extends Component {
           <Input disabled placeholder="Vlasnik" value={ data["Vlasnik"] }/>
         </FormGroup>
         <FormGroup>
-          <Label>Tip otpada</Label>
-          <Input type="select" defaultValue={ data["Kategorija"] }
-                 onChange={ this.updateChildState(index, "Kategorija") }>
-            <option disabled value="" key="none">(izaberite)</option>
-            <option value="PET" key="PET">PET</option>
-          </Input>
-          { data["Podkategorija"] &&
-          <Input type="select"
-                 defaultValue={ data["Podkategorija"] }
-                 onChange={ this.updateChildState(index, "Podkategorija") }
-                 style={ {marginTop: 10} }>
-            <option disabled value="" key="none">(izaberite)</option>
-            <option value="15 01 02 - Plastična ambalaža" key="15 01 02 - Plastična ambalaža">
-              15 01 02 - Plastična ambalaža
-            </option>
-            <option value="02 01 04 - Otpadna plastika" key="02 01 04 - Otpadna plastika">
-              02 01 04 - Otpadna plastika
-            </option>
-          </Input> }
-        </FormGroup>
-        <FormGroup>
           <Label>Nacin Pakovanja</Label>
-          <Input type="select" defaultValue={ data["Nacin Pakovanja"] } onChange={ this.updateChildState(index, "Format") }>
+          <Input type="select" defaultValue={ data["Nacin Pakovanja"] } onChange={ this.updateChildState(index, "Nacin Pakovanja") }>
             <option disabled value="">(izaberite)</option>
             <option value="Bala">Bala</option>
             <option value="Rinfuz">Rinfuz</option>
+            <option value="Drveno Bure">Drveno Bure</option>
+            <option value="Kanister">Kanister</option>
+            <option value="Sanduk">Sanduk</option>
+            <option value="Kesa">Kesa</option>
+            <option value="Posude pod pritiskom">Posude pod pritiskom</option>
+            <option value="Kompozitno pakovanje">Kompozitno pakovanje</option>
+            <option value="Rasuto stanje">Rasuto stanje</option>
+            <option value="Ostalo">Ostalo</option>
           </Input>
         </FormGroup>
         <FormGroup>
           <Label>Tip Otpada</Label>
-          <Input type="select" defaultValue={ data["Vrsta"] } onChange={ this.updateChildState(index, "Vrsta") }>
+          <Input type="select" defaultValue={ data["Tip Otpada"] } onChange={ this.updateChildState(index, "Tip Otpada") }>
             <option disabled value="">(izaberite)</option>
             <option value="Opasan otpad">Opasan otpad</option>
             <option value="Neopasan otpad">Neopasan otpad</option>
@@ -259,30 +246,6 @@ class SplitProduct extends Component {
           <Label>Kolicina (kg)</Label>
           <Input placeholder='npr. 1000' type='number' value={ data["Kolicina (kg)"] || '' }
                  onChange={ this.updateChildState(index, "Kolicina (kg)") }/>
-        </FormGroup>
-        <FormGroup>
-          <Label>
-            Dozvole za upravljanje otpadom
-          </Label>
-          <div>
-            {
-              // displays all available certifications
-              this.state.availableCertifications && this.state.availableCertifications.length > 0 ?
-                this.state.availableCertifications.map((certification, index) =>
-                  <div key={ index }>
-                    <input style={ {marginRight: "5px"} } onChange={ this.handleCertificationSelect(index) }
-                           name={ certification.id }
-                           type="checkbox"/>
-                    <span>{ certification.name }</span>
-                  </div>
-                )
-                :
-                <div style={ {marginLeft: "15px"} }>
-                  Nema dostupnih dozvola.
-                  <Link style={ {marginLeft: "10px"} } to="/createcertification">Unesi dozvolu</Link>
-                </div>
-            }
-          </div>
         </FormGroup>
       </div>
     );

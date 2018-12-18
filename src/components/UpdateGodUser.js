@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
-import {connect} from 'react-redux';
-import {notify} from 'react-notify-toast'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { notify } from "react-notify-toast";
 
-import AnnotatedSection from '../components/AnnotatedSection'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faUserPlus from '@fortawesome/fontawesome-free-solid/faUserPlus'
+import AnnotatedSection from "../components/AnnotatedSection";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faUserPlus from "@fortawesome/fontawesome-free-solid/faUserPlus";
 
 import {
   Button,
@@ -13,43 +13,68 @@ import {
   InputGroupAddon,
   Label,
   Input
-} from 'reactstrap';
+} from "reactstrap";
 
 class UpdateGodUser extends Component {
-
   constructor(props) {
-    super(props)
+    super(props);
 
     // initialize the component's state
     this.state = {
-      newGodAddress: ''
-    }
+      newGodAddress: ""
+    };
   }
 
   handleUpdateGodUser = () => {
-    this.props.passageInstance.updateGodUser(this.state.newGodAddress, {from: this.props.web3Accounts[0], gas:1000000})
-      .then((result) => {
-        notify.show("Administrator azuriran.", "custom", 5000, { background: '#50b796', text: "#FFFFFF" });
+    this.props.passageInstance
+      .updateGodUser(this.state.newGodAddress, {
+        from: this.props.web3Accounts[0],
+        gas: 1000000
       })
-  }
+      .then(result => {
+        notify.show("Administrator azuriran.", "custom", 5000, {
+          background: "#50b796",
+          text: "#FFFFFF"
+        });
+      });
+  };
 
   render() {
     return (
       <AnnotatedSection
         annotationContent={
           <div>
-            <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faUserPlus}/>
-            Prebaci administrativna prava
+            <FontAwesomeIcon
+              fixedWidth
+              style={{ paddingTop: "3px", marginRight: "6px" }}
+              icon={faUserPlus}
+            />
+            Transfer admin rights
           </div>
         }
         panelContent={
           <div>
             <FormGroup>
-              <Label>Ethereum adresa novog administratora</Label>
+              <Label>New administrator Ethereum address</Label>
               <InputGroup>
-                <Input placeholder="0x..." value={this.state.newGodAddress} onChange={(e) => {this.setState({newGodAddress: e.target.value})}}></Input>
+                <Input
+                  placeholder="0x..."
+                  value={this.state.newGodAddress}
+                  onChange={e => {
+                    this.setState({ newGodAddress: e.target.value });
+                  }}
+                />
                 <InputGroupAddon addonType="append">
-                  <Button style={{borderBottomLeftRadius:"0", borderTopLeftRadius:"0"}} color="primary"  onClick={this.handleUpdateGodUser}>Azuriraj</Button>
+                  <Button
+                    style={{
+                      borderBottomLeftRadius: "0",
+                      borderTopLeftRadius: "0"
+                    }}
+                    color="primary"
+                    onClick={this.handleUpdateGodUser}
+                  >
+                    Update
+                  </Button>
                 </InputGroupAddon>
               </InputGroup>
             </FormGroup>
@@ -70,4 +95,3 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps)(UpdateGodUser);
-

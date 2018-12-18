@@ -98,6 +98,8 @@ contract PassageMain is PassageHelper {
         product.latestVersionId = newVersionId;
     }
 
+    event Breakpoint();
+
     function splitProduct(
         bytes32 _productId,
         string _name,
@@ -107,6 +109,8 @@ contract PassageMain is PassageHelper {
         bytes32[] _certificationsIds,
         string _customJsonData
     ) public productIdExists(_productId) noChildren(_productId) {
+        emit Breakpoint();
+
         // Get base product from storage
         Product storage product = productIdToProductStruct[_productId];
 
@@ -131,6 +135,7 @@ contract PassageMain is PassageHelper {
         child.description = _description;
         child.certificationsIds = _certificationsIds;
 
+        emit Breakpoint();
         // Add new product ID
         productIds.push(childId);
 
@@ -143,6 +148,7 @@ contract PassageMain is PassageHelper {
         ////////////////////////
         // Create new version //
         ////////////////////////
+        emit Breakpoint();
 
         // Generate a pseudo-random product ID
         // from the current time, the sender's address, and the productId
@@ -151,12 +157,14 @@ contract PassageMain is PassageHelper {
         // Create product version
         var version = versionIdToVersionStruct[newVersionId];
 
+        emit Breakpoint();
         // Define new version
         version.versionId = newVersionId;
         version.creationDate = now;
         version.previousVersionId = product.latestVersionId;
         version.owner = product.owner;
 
+        emit Breakpoint();
         version.latitude = _latitude;
         version.longitude = _longitude;
         version.customJsonData = _customJsonData;

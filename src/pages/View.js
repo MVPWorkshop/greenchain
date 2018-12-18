@@ -205,7 +205,9 @@ class View extends Component {
                 <td>{ this.state.versionCreationDate }</td>
               </tr>
               {
-                Object.keys(customData).map(key =>
+                Object.keys(customData)
+                  .filter(key => key !== "Vrsta Transporta" || customData["Faza"] === "Transport")
+                  .map(key =>
                   <tr key={ key }>
                     <th scope="row">{ key }</th>
                     <td>{ customData[key] }</td>

@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 import {
   FormGroup,
@@ -8,10 +8,9 @@ import {
   InputGroupAddon,
   Label,
   Button
-} from 'reactstrap';
+} from "reactstrap";
 
 class Search extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -23,11 +22,27 @@ class Search extends Component {
     return (
       <div>
         <FormGroup>
-          <Label>Sifra otpada</Label>
+          <Label>Waste ID</Label>
           <InputGroup>
-            <Input placeholder="0x..." value={this.state.productIdToView} onChange={(e) => {this.setState({productIdToView: e.target.value})}}></Input>
+            <Input
+              placeholder="0x..."
+              value={this.state.productIdToView}
+              onChange={e => {
+                this.setState({ productIdToView: e.target.value });
+              }}
+            />
             <InputGroupAddon addonType="append">
-              <Link to={"/products/" + this.state.productIdToView}><Button style={{borderBottomLeftRadius:"0", borderTopLeftRadius:"0"}} color="primary">Nadji</Button></Link>
+              <Link to={"/products/" + this.state.productIdToView}>
+                <Button
+                  style={{
+                    borderBottomLeftRadius: "0",
+                    borderTopLeftRadius: "0"
+                  }}
+                  color="primary"
+                >
+                  Find
+                </Button>
+              </Link>
             </InputGroupAddon>
           </InputGroup>
         </FormGroup>
