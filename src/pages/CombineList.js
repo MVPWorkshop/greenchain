@@ -1,123 +1,151 @@
-import React, { Component } from 'react'
-import {connect} from 'react-redux';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
-import { Link } from 'react-router-dom'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng
+} from "react-places-autocomplete";
+import { Link } from "react-router-dom";
 
-import AnnotatedSection from '../components/AnnotatedSection'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faWrench from '@fortawesome/fontawesome-free-solid/faWrench'
-import faStar from '@fortawesome/fontawesome-free-solid/faStar'
-import faList from '@fortawesome/fontawesome-free-solid/faList'
+import AnnotatedSection from "../components/AnnotatedSection";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faWrench from "@fortawesome/fontawesome-free-solid/faWrench";
+import faStar from "@fortawesome/fontawesome-free-solid/faStar";
+import faList from "@fortawesome/fontawesome-free-solid/faList";
 
-import {
-  Button,
-  FormGroup,
-  Label,
-  Input,
-} from 'reactstrap';
+import { Button, FormGroup, Label, Input } from "reactstrap";
 
 class CombineList extends Component {
-
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      name: '',
-      description: '',
-      latitude: '',
-      longitude: '',
-      address: '',
+      name: "",
+      description: "",
+      latitude: "",
+      longitude: "",
+      address: "",
       availableCertifications: [],
       buttonDisabled: false,
       selectedCertifications: {},
       customDataInputs: {},
       products: []
-    }
-    this.onChange = (address) => this.setState({ address })
+    };
+    this.onChange = address => this.setState({ address });
   }
 
-  componentDidMount(){
-    this.props.passageInstance.getAllCertificationsIds()
-      .then((result) => {
-        result.map((certificationId) => {
-          this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
-            .then((result) => {
-              const certification = {
-                name: result[0],
-                imageUrl: result[1],
-                id: certificationId,
-              }
-              this.setState({availableCertifications: [...this.state.availableCertifications, certification]})
+  componentDidMount() {
+    this.props.passageInstance.getAllCertificationsIds().then(result => {
+      result.map(certificationId => {
+        this.props.passageInstance
+          .getCertificationById(String(certificationId).valueOf())
+          .then(result => {
+            const certification = {
+              name: result[0],
+              imageUrl: result[1],
+              id: certificationId
+            };
+            this.setState({
+              availableCertifications: [
+                ...this.state.availableCertifications,
+                certification
+              ]
             });
-          return false;
-        });
-    })
-
-    this.props.passageInstance.getOwnerProducts()
-      .then((result) => {
-
-        result.map((productId) => {
-          this.props.passageInstance.getProductById(String(productId).valueOf(), "latest")
-            .then((result) => {
-              var _this = this;
-              const product = {
-                name: result[0],
-                description: result[1],
-                latitude: parseFloat(result[2]),
-                longitude: parseFloat(result[3]),
-                versionCreationDate: Date(result[4]),
-                versions: result[5],
-                id: productId,
-              }
-              this.setState({products: [...this.state.products, product]})
-            })
-            .catch((error) => {
-              console.log(error);
-            })
-          return false;
-        })
+          });
+        return false;
       });
+    });
+
+    this.props.passageInstance.getOwnerProducts().then(result => {
+      result.map(productId => {
+        this.props.passageInstance
+          .getProductById(String(productId).valueOf(), "latest")
+          .then(result => {
+            var _this = this;
+            const product = {
+              name: result[0],
+              description: result[1],
+              latitude: parseFloat(result[2]),
+              longitude: parseFloat(result[3]),
+              versionCreationDate: Date(result[4]),
+              versions: result[5],
+              id: productId
+            };
+            this.setState({ products: [...this.state.products, product] });
+          })
+          .catch(error => {
+            console.log(error);
+          });
+        return false;
+      });
+    });
   }
 
-  handleChange = (e) => {
+  handleChange = e => {
     const certificationId = e.target.name;
-    this.setState({selectedCertifications: {...this.state.selectedCertifications, [certificationId]: e.target.checked}})
+    this.setState({
+      selectedCertifications: {
+        ...this.state.selectedCertifications,
+        [certificationId]: e.target.checked
+      }
+    });
   };
 
   handleCreateNewProduct = () => {
     const selectedCertifications = this.state.selectedCertifications;
     const certificationsArray = [];
     Object.keys(selectedCertifications).map(key => {
-      if(selectedCertifications[key] === true){
-        certificationsArray.push(key)
+      if (selectedCertifications[key] === true) {
+        certificationsArray.push(key);
       }
       return false;
     });
 
-    var customDataObject = {}
+    var customDataObject = {};
     Object.keys(this.state.customDataInputs).map(inputKey => {
-      customDataObject[this.state.customDataInputs[inputKey].key] = this.state.customDataInputs[inputKey].value;
+      customDataObject[
+        this.state.customDataInputs[inputKey].key
+      ] = this.state.customDataInputs[inputKey].value;
       return false;
-    })
-    this.props.passageInstance.createProduct(this.state.name, this.state.description, this.state.latitude.toString(), this.state.longitude.toString(), certificationsArray, JSON.stringify(customDataObject), {from: this.props.web3Accounts[0], gas:1000000})
-      .then((result) => {
+    });
+    this.props.passageInstance
+      .createProduct(
+        this.state.name,
+        this.state.description,
+        this.state.latitude.toString(),
+        this.state.longitude.toString(),
+        certificationsArray,
+        JSON.stringify(customDataObject),
+        { from: this.props.web3Accounts[0], gas: 1000000 }
+      )
+      .then(result => {
         // product created! ... but we use an event watcher to show the success message, so nothing actuelly happens here after we create a product
-      })
-  }
+      });
+  };
 
-  handleSelect = (address) => {
-    this.setState({address, buttonDisabled: true})
+  handleSelect = address => {
+    this.setState({ address, buttonDisabled: true });
 
     geocodeByAddress(this.state.address)
       .then(results => getLatLng(results[0]))
       .then(latLng => {
-        this.setState({latitude: latLng.lat, longitude: latLng.lng, buttonDisabled: false})
+        this.setState({
+          latitude: latLng.lat,
+          longitude: latLng.lng,
+          buttonDisabled: false
+        });
       })
-      .catch(error => console.error('Error', error))
-  }
+      .catch(error => console.error("Error", error));
+  };
 
   appendInput() {
-    var newInputKey = `input-${Object.keys(this.state.customDataInputs).length}`; // this might not be a good idea (e.g. when removing then adding more inputs)
-    this.setState({ customDataInputs: {...this.state.customDataInputs, [newInputKey]: {key: "", value: ""} }});
+    var newInputKey = `input-${
+      Object.keys(this.state.customDataInputs).length
+    }`; // this might not be a good idea (e.g. when removing then adding more inputs)
+    this.setState({
+      customDataInputs: {
+        ...this.state.customDataInputs,
+        [newInputKey]: { key: "", value: "" }
+      }
+    });
   }
 
   render() {
@@ -125,40 +153,50 @@ class CombineList extends Component {
       return (
         <div key={index}>
           <FormGroup>
-            <Input type="checkbox" name="productSelection" onChange={(e) => {}}></Input>
+            <Input type="checkbox" name="productSelection" onChange={e => {}} />
           </FormGroup>
           <Link to={`/products/${product.id}`}>
             <div>
-              <b>{product.name || "Otpad"}</b> &mdash; {product.description || "Otpad"}
-              <hr/>
+              <b>{product.name || "Waste"}</b> &mdash;{" "}
+              {product.description || "Waste"}
+              <hr />
             </div>
           </Link>
         </div>
-      )
-    })
+      );
+    });
 
     const inputProps = {
       value: this.state.address,
       onChange: this.onChange,
-      placeholder: "Tacna lokacija"
-    }
+      placeholder: "Location"
+    };
 
     return (
       <div>
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faList}/>
-              Odabir otpada
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faList}
+              />
+              Select waste
             </div>
           }
           panelContent={
             <div>
-              {products && products.length > 0 ? products :
-              <div>
-                Trenutno nema dodatog otpada
-                <Link style={{marginLeft: "10px"}} to="/create">Dodaj otpad</Link>
-              </div>}
+              {products && products.length > 0 ? (
+                products
+              ) : (
+                <div>
+                  No waste found.
+                  <Link style={{ marginLeft: "10px" }} to="/create">
+                    Add waste
+                  </Link>
+                </div>
+              )}
             </div>
           }
         />
@@ -166,43 +204,71 @@ class CombineList extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faStar}/>
-              Informacije o spojenom proizvodu
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faStar}
+              />
+              Information about the combined waste
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                  <Label>Sifra otpada</Label>
-                  <Input placeholder="Sifra otpada" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
+                <Label>Waste ID</Label>
+                <Input
+                  placeholder="Waste ID"
+                  value={this.state.name}
+                  onChange={e => {
+                    this.setState({ name: e.target.value });
+                  }}
+                />
               </FormGroup>
               <FormGroup>
-                  <Label>Lokacija</Label>
-                  <PlacesAutocomplete
-                    inputProps={inputProps}
-                    onSelect={this.handleSelect}
-                    classNames={{input: "form-control"}}
-                  />
+                <Label>Location</Label>
+                <PlacesAutocomplete
+                  inputProps={inputProps}
+                  onSelect={this.handleSelect}
+                  classNames={{ input: "form-control" }}
+                />
               </FormGroup>
               <FormGroup>
                 <Label>
-                  Dozvole za upravljanje otpada
-                  <Link style={{marginLeft: "10px"}} to="/createcertification">Dodaj +</Link>
+                  Licence for managing waste
+                  <Link
+                    style={{ marginLeft: "10px" }}
+                    to="/createcertification"
+                  >
+                    Add +
+                  </Link>
                 </Label>
                 <div>
-                  {this.state.availableCertifications && this.state.availableCertifications.length > 0 ?
-                    this.state.availableCertifications.map((certification, index) =>
-                      <div key={index}>
-                        <input style={{marginRight: "5px"}} onChange={this.handleChange} name={certification.id} type="checkbox"></input>
-                        <span>{certification.name}</span>
-                      </div>
+                  {this.state.availableCertifications &&
+                  this.state.availableCertifications.length > 0 ? (
+                    this.state.availableCertifications.map(
+                      (certification, index) => (
+                        <div key={index}>
+                          <input
+                            style={{ marginRight: "5px" }}
+                            onChange={this.handleChange}
+                            name={certification.id}
+                            type="checkbox"
+                          />
+                          <span>{certification.name}</span>
+                        </div>
+                      )
                     )
-                    :
-                    <div style={{marginLeft:"15px"}}>
-                      Nema dozvola za upravljanje otpadom.
-                      <Link style={{marginLeft: "10px"}} to="/createcertification">Unesi dozvolu</Link>
+                  ) : (
+                    <div style={{ marginLeft: "15px" }}>
+                      No licences for managing waste.
+                      <Link
+                        style={{ marginLeft: "10px" }}
+                        to="/createcertification"
+                      >
+                        Add licence
+                      </Link>
                     </div>
-                  }
+                  )}
                 </div>
               </FormGroup>
             </div>
@@ -211,13 +277,23 @@ class CombineList extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faWrench}/>
-              Akcije
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faWrench}
+              />
+              Actions
             </div>
           }
           panelContent={
             <div>
-              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleCreateNewProduct}>Spoji otpad</Button>
+              <Button
+                disabled={this.state.buttonDisabled}
+                color="primary"
+                onClick={this.handleCreateNewProduct}
+              >
+                Combine waste
+              </Button>
             </div>
           }
         />

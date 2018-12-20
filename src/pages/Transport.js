@@ -1,13 +1,16 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
-import { Link } from 'react-router-dom'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng
+} from "react-places-autocomplete";
+import { Link } from "react-router-dom";
 
-import AnnotatedSection from '../components/AnnotatedSection'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faArrowAltCircleUp from '@fortawesome/fontawesome-free-solid/faArrowAltCircleUp'
+import AnnotatedSection from "../components/AnnotatedSection";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faArrowAltCircleUp from "@fortawesome/fontawesome-free-solid/faArrowAltCircleUp";
 
-import { Button, FormGroup, Input, Label, } from 'reactstrap';
+import { Button, FormGroup, Input, Label } from "reactstrap";
 
 /*
   Transport component
@@ -18,13 +21,13 @@ class Transport extends Component {
     super(props);
 
     this.state = {
-      latitude: '',
-      longitude: '',
-      address: '',
+      latitude: "",
+      longitude: "",
+      address: "",
       updateButtonDisabled: false,
       customDataInputs: {}
     };
-    this.onChange = (address) => this.setState({address})
+    this.onChange = address => this.setState({ address });
   }
 
   componentDidMount() {
@@ -32,47 +35,67 @@ class Transport extends Component {
     this.params = this.props.match.params;
 
     // fetch the product's custom data fields then add them to the state
-    this.props.passageInstance.getProductCustomDataById(String(this.params.productId).valueOf(), this.params.versionId ? String(this.params.versionId).valueOf() : "latest")
-      .then((result) => {
+    this.props.passageInstance
+      .getProductCustomDataById(
+        String(this.params.productId).valueOf(),
+        this.params.versionId
+          ? String(this.params.versionId).valueOf()
+          : "latest"
+      )
+      .then(result => {
         let customData = JSON.parse(result);
-        customData["Vrsta Transporta"] = "";
+        customData["Transport Type"] = "";
         Object.keys(customData).map(dataKey => {
           const inputKey = this.appendInput();
           this.setState({
             customDataInputs: {
               ...this.state.customDataInputs,
-              [inputKey]: {key: dataKey, value: dataKey !== "Faza" ? customData[dataKey] : "Transport"}
+              [inputKey]: {
+                key: dataKey,
+                value: dataKey !== "Phase" ? customData[dataKey] : "Transport"
+              }
             }
           });
           return false;
-        })
+        });
       })
-      .catch((error) => {
+      .catch(error => {
         // if something goes wrong when fetching the product, we just redirect
         // to the home page to prevent displaying false/wrong information
-        return this.props.history.push('/');
-      })
+        return this.props.history.push("/");
+      });
   }
 
   // method that adds a new custom data input to the state, which is then
   // reflected on the page by the render() function
   appendInput() {
-    var newInputKey = `input-${Object.keys(this.state.customDataInputs).length}`; // this might not be a good idea (e.g. when removing then adding more inputs)
-    this.setState({customDataInputs: {...this.state.customDataInputs, [newInputKey]: {key: "", value: ""}}});
+    var newInputKey = `input-${
+      Object.keys(this.state.customDataInputs).length
+    }`; // this might not be a good idea (e.g. when removing then adding more inputs)
+    this.setState({
+      customDataInputs: {
+        ...this.state.customDataInputs,
+        [newInputKey]: { key: "", value: "" }
+      }
+    });
     return newInputKey;
   }
 
   // method that gets the (lat, lng) pair of the selected location
   // in the location autocompletion search bar
-  handleSelect = (address) => {
-    this.setState({address, updateButtonDisabled: true});
+  handleSelect = address => {
+    this.setState({ address, updateButtonDisabled: true });
 
     geocodeByAddress(this.state.address)
       .then(results => getLatLng(results[0]))
       .then(latLng => {
-        this.setState({latitude: latLng.lat, longitude: latLng.lng, updateButtonDisabled: false})
+        this.setState({
+          latitude: latLng.lat,
+          longitude: latLng.lng,
+          updateButtonDisabled: false
+        });
       })
-      .catch(error => console.error('Error', error))
+      .catch(error => console.error("Error", error));
   };
 
   // method that sends the updated data to the smart contract "updateProduct" method
@@ -80,7 +103,7 @@ class Transport extends Component {
     // generate a 'clean' representation of the custom data
     var customDataObject = {};
     Object.keys(this.state.customDataInputs).map(inputKey => {
-      const input = this.state.customDataInputs[inputKey]
+      const input = this.state.customDataInputs[inputKey];
       if (input.key.trim() !== "" && input.value.trim() !== "") {
         customDataObject[input.key] = input.value;
       }
@@ -88,98 +111,155 @@ class Transport extends Component {
     });
 
     // actually call the smart contract method
-    this.props.passageInstance.updateProduct(String(this.params.productId).valueOf(), this.state.latitude.toString(), this.state.longitude.toString(), JSON.stringify(customDataObject), {
-      from: this.props.web3Accounts[0],
-      gas: 1000000
-    })
-      .then((result) => {
+    this.props.passageInstance
+      .updateProduct(
+        String(this.params.productId).valueOf(),
+        this.state.latitude.toString(),
+        this.state.longitude.toString(),
+        JSON.stringify(customDataObject),
+        {
+          from: this.props.web3Accounts[0],
+          gas: 1000000
+        }
+      )
+      .then(result => {
         // redirect to the product page upon success
-        this.props.history.push('/products/' + this.params.productId);
-      })
-  }
+        this.props.history.push("/products/" + this.params.productId);
+      });
+  };
 
   render() {
     const inputProps = {
       value: this.state.address,
       onChange: this.onChange,
-      placeholder: "Tacna lokacija"
-    }
+      placeholder: "Location"
+    };
 
     return (
       <div>
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} }
-                               icon={ faArrowAltCircleUp }/>
-              Informacije o transportu
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faArrowAltCircleUp}
+              />
+              Transportation information
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                <Label>Lokacija</Label>
+                <Label>Location</Label>
                 <PlacesAutocomplete
-                  inputProps={ inputProps }
-                  onSelect={ this.handleSelect }
-                  classNames={ {input: "form-control"} }
+                  inputProps={inputProps}
+                  onSelect={this.handleSelect}
+                  classNames={{ input: "form-control" }}
                 />
               </FormGroup>
               <FormGroup>
-                {
-                  // for every custom data field specified in the component state,
-                  // render an input with the appropriate key/value pair
-                  Object.keys(this.state.customDataInputs).filter(inputKey => {
-                    return ["Vlasnik", "Faza", "Vrsta Transporta"].includes(this.state.customDataInputs[inputKey].key)
-                  }).map(inputKey =>
-                    <FormGroup style={ {display: "flex"} } key={ inputKey }>
-                      <Input value={ this.state.customDataInputs[inputKey].key } placeholder="Osobina (npr. boja)"
-                             style={ {flex: 1, marginRight: "15px"} }/>
-                      { this.state.customDataInputs[inputKey].key !== "Vrsta Transporta"
-                        ?
-                        <Input value={ this.state.customDataInputs[inputKey].value } placeholder="Vrednost (npr. cena)"
-                               disabled={ this.state.customDataInputs[inputKey].key === "Faza" }
-                               style={ {flex: 1} } onChange={ (e) => {
-                          this.setState({
-                            customDataInputs: {
-                              ...this.state.customDataInputs,
-                              [inputKey]: {...this.state.customDataInputs[inputKey], value: e.target.value}
-                            }
-                          })
-                        } }>
+                {// for every custom data field specified in the component state,
+                // render an input with the appropriate key/value pair
+                Object.keys(this.state.customDataInputs)
+                  .filter(inputKey => {
+                    return ["Owner", "Phase", "Transport Type"].includes(
+                      this.state.customDataInputs[inputKey].key
+                    );
+                  })
+                  .map(inputKey => (
+                    <FormGroup style={{ display: "flex" }} key={inputKey}>
+                      <Input
+                        value={this.state.customDataInputs[inputKey].key}
+                        placeholder="Property (eg. color)"
+                        style={{ flex: 1, marginRight: "15px" }}
+                      />
+                      {this.state.customDataInputs[inputKey].key !==
+                      "Transport Type" ? (
+                        <Input
+                          value={this.state.customDataInputs[inputKey].value}
+                          placeholder="Value (eg. red)"
+                          disabled={
+                            this.state.customDataInputs[inputKey].key ===
+                            "Phase"
+                          }
+                          style={{ flex: 1 }}
+                          onChange={e => {
+                            this.setState({
+                              customDataInputs: {
+                                ...this.state.customDataInputs,
+                                [inputKey]: {
+                                  ...this.state.customDataInputs[inputKey],
+                                  value: e.target.value
+                                }
+                              }
+                            });
+                          }}
+                        />
+                      ) : (
+                        <Input
+                          defaultValue={
+                            this.state.customDataInputs[inputKey].value
+                          }
+                          type={"select"}
+                          style={{ flex: 1 }}
+                          onChange={e => {
+                            this.setState({
+                              customDataInputs: {
+                                ...this.state.customDataInputs,
+                                [inputKey]: {
+                                  ...this.state.customDataInputs[inputKey],
+                                  value: e.target.value
+                                }
+                              }
+                            });
+                          }}
+                        >
+                          {this.state.customDataInputs[inputKey].key ===
+                          "Transport Type" ? (
+                            <option disabled value="">
+                              (select)
+                            </option>
+                          ) : (
+                            ""
+                          )}
+                          {this.state.customDataInputs[inputKey].key ===
+                          "Transport Type" ? (
+                            <option value="Road">Road</option>
+                          ) : (
+                            ""
+                          )}
+                          {this.state.customDataInputs[inputKey].key ===
+                            "Transport Type" && (
+                            <option value="Rail">Rail</option>
+                          )}
+                          {this.state.customDataInputs[inputKey].key ===
+                            "Transport Type" && (
+                            <option value="Ship">Ship</option>
+                          )}
+                          {this.state.customDataInputs[inputKey].key ===
+                            "Transport Type" && (
+                            <option value="Plane">Plane</option>
+                          )}
+                          {this.state.customDataInputs[inputKey].key ===
+                            "Transport Type" && (
+                            <option value="Other">Other</option>
+                          )}
                         </Input>
-                        : <Input defaultValue={ this.state.customDataInputs[inputKey].value }
-                                 type={ "select" }
-                                 style={ {flex: 1} } onChange={ (e) => {
-                          this.setState({
-                            customDataInputs: {
-                              ...this.state.customDataInputs,
-                              [inputKey]: {...this.state.customDataInputs[inputKey], value: e.target.value}
-                            }
-                          })
-                        } }>
-                          { this.state.customDataInputs[inputKey].key === "Vrsta Transporta"
-                            ? <option disabled value="">(izaberite)</option> : '' }
-                          { this.state.customDataInputs[inputKey].key === "Vrsta Transporta"
-                            ? <option value="Drumski">Drumski</option> : '' }
-                          { this.state.customDataInputs[inputKey].key === "Vrsta Transporta" &&
-                          <option value="Zeleznicki">Zeleznicki</option> }
-                          { this.state.customDataInputs[inputKey].key === "Vrsta Transporta" &&
-                          <option value="Brodski">Brodski</option> }
-                          { this.state.customDataInputs[inputKey].key === "Vrsta Transporta" &&
-                          <option value="Avionski">Avionski</option> }
-                          { this.state.customDataInputs[inputKey].key === "Vrsta Transporta" &&
-                          <option value="Ostalo">Ostalo</option> }
-                        </Input> }
+                      )}
                     </FormGroup>
-                  )
-                }
-                <Link to="#" onClick={ () => this.appendInput() }>
-                  Unesi dodatne informacije
+                  ))}
+                <Link to="#" onClick={() => this.appendInput()}>
+                  Add additional information
                 </Link>
               </FormGroup>
-              <Button disabled={ this.state.updateButtonDisabled } color="primary" onClick={ this.handleUpdateProduct }>Sacuvaj
-                izmene</Button>
+              <Button
+                disabled={this.state.updateButtonDisabled}
+                color="primary"
+                onClick={this.handleUpdateProduct}
+              >
+                Save changes
+              </Button>
             </div>
           }
         />

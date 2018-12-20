@@ -1,14 +1,14 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux';
-import { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
-import { Link } from 'react-router-dom'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { geocodeByAddress, getLatLng } from "react-places-autocomplete";
+import { Link } from "react-router-dom";
 
-import AnnotatedSection from '../components/AnnotatedSection'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faUngroup from '@fortawesome/fontawesome-free-solid/faObjectUngroup'
-import faWrench from '@fortawesome/fontawesome-free-solid/faWrench'
+import AnnotatedSection from "../components/AnnotatedSection";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faUngroup from "@fortawesome/fontawesome-free-solid/faObjectUngroup";
+import faWrench from "@fortawesome/fontawesome-free-solid/faWrench";
 
-import { Button, FormGroup, Input, Label, } from 'reactstrap';
+import { Button, FormGroup, Input, Label } from "reactstrap";
 
 class SplitProduct extends Component {
   constructor(props) {
@@ -16,14 +16,18 @@ class SplitProduct extends Component {
     this.state = {
       children: [],
       availableCertifications: [],
-      certifications: [],
+      certifications: []
     };
   }
 
   componentDidMount() {
-    this.props.passageInstance.getProductById(
-      String(this.props.match.params.productId).valueOf(),
-      this.props.match.params.versionId ? String(this.props.match.params.versionId).valueOf() : "latest")
+    this.props.passageInstance
+      .getProductById(
+        String(this.props.match.params.productId).valueOf(),
+        this.props.match.params.versionId
+          ? String(this.props.match.params.versionId).valueOf()
+          : "latest"
+      )
       .then(result => {
         this.setState({
           name: result[0],
@@ -37,77 +41,89 @@ class SplitProduct extends Component {
         });
 
         const certificationsArray = result[6];
-        certificationsArray.map((certificationId) => {
-          return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
-            .then((certificationResult) => {
+        certificationsArray.map(certificationId => {
+          return this.props.passageInstance
+            .getCertificationById(String(certificationId).valueOf())
+            .then(certificationResult => {
               const certification = {
                 name: certificationResult[0],
                 imageUrl: certificationResult[1],
-                id: certificationId,
+                id: certificationId
               };
               this.setState({
                 certifications: [...this.state.certifications, certification]
-              })
+              });
             });
         });
 
         // then, we get the product's versions list
         const versionsArray = result[5];
-        versionsArray.map((versionId) => {
-          this.props.passageInstance.getVersionLatLngById(String(versionId).valueOf())
-            .then((latLngResult) => {
+        versionsArray.map(versionId => {
+          this.props.passageInstance
+            .getVersionLatLngById(String(versionId).valueOf())
+            .then(latLngResult => {
               const version = {
                 latitude: parseFloat(latLngResult[0]),
                 longitude: parseFloat(latLngResult[1]),
-                id: versionId,
+                id: versionId
               };
-              this.setState({versions: [...this.state.versions, version]})
+              this.setState({ versions: [...this.state.versions, version] });
             });
           return false;
         });
       });
 
-    this.props.passageInstance.getProductCustomDataById(
-      String(this.props.match.params.productId).valueOf(),
-      this.props.match.params.versionId ? String(this.props.match.params.versionId).valueOf() : "latest"
-    )
-      .then((result) => {
+    this.props.passageInstance
+      .getProductCustomDataById(
+        String(this.props.match.params.productId).valueOf(),
+        this.props.match.params.versionId
+          ? String(this.props.match.params.versionId).valueOf()
+          : "latest"
+      )
+      .then(result => {
         const customData = JSON.parse(result);
 
         this.setState({
-          ...customData,
+          ...customData
         });
       })
-      .catch((error) => {
+      .catch(error => {
         console.error(error);
         this.setState({
           customDataJson: ""
-        })
+        });
       });
 
-    this.props.passageInstance.getActorCertificationsIds({from: this.props.web3Accounts[0]})
-      .then((result) => {
-        result.map((certificationId) => {
-          return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
-            .then((result) => {
+    this.props.passageInstance
+      .getActorCertificationsIds({ from: this.props.web3Accounts[0] })
+      .then(result => {
+        result.map(certificationId => {
+          return this.props.passageInstance
+            .getCertificationById(String(certificationId).valueOf())
+            .then(result => {
               const certification = {
                 name: result[0],
                 imageUrl: result[1],
-                id: certificationId,
+                id: certificationId
               };
-              return this.setState({availableCertifications: [...this.state.availableCertifications, certification]})
+              return this.setState({
+                availableCertifications: [
+                  ...this.state.availableCertifications,
+                  certification
+                ]
+              });
             });
         });
-      })
+      });
   }
 
   addChild = () => {
     // eslint-disable-next-line no-unused-vars
-    const {children, availableCertifications, ...parent} = this.state;
+    const { children, availableCertifications, ...parent } = this.state;
 
     this.setState({
       children: [...children, Object.assign({}, parent)]
-    })
+    });
   };
 
   updateChildState = (index, key) => e => {
@@ -115,16 +131,16 @@ class SplitProduct extends Component {
     children[index][key] = e.target.value;
 
     this.setState({
-      children: children,
+      children: children
     });
   };
 
-  updateChildAddress = (index) => address => {
+  updateChildAddress = index => address => {
     const children = this.state.children;
     children[index].address = address;
 
     this.setState({
-      children: children,
+      children: children
     });
   };
 
@@ -139,13 +155,13 @@ class SplitProduct extends Component {
         children[index].longitude = latLng.lng;
 
         this.setState({
-          children: children,
+          children: children
         });
       })
-      .catch(error => console.error('Error', error))
+      .catch(error => console.error("Error", error));
   };
 
-  handleCertificationSelect = index => (e) => {
+  handleCertificationSelect = index => e => {
     const certificationId = e.target.name;
 
     const children = this.state.children;
@@ -155,22 +171,27 @@ class SplitProduct extends Component {
     };
 
     this.setState({
-      children: children,
+      children: children
     });
 
-    this.setState({certifications: {...this.state.certifications, [certificationId]: e.target.checked}})
+    this.setState({
+      certifications: {
+        ...this.state.certifications,
+        [certificationId]: e.target.checked
+      }
+    });
   };
 
-  productDescription = (product) => {
-    if (!product.Kategorija) {
-      return "Otpad"
+  productDescription = product => {
+    if (!product.Category) {
+      return "Waste";
     }
 
-    return `${product.Podkategorija} - ${product["Kolicina (kg)"]} kg`
+    return `${product.Subcategory} - ${product["Weight (kg)"]} kg`;
   };
 
   handleSplitProduct = () => {
-    const {children} = this.state;
+    const { children } = this.state;
 
     children.forEach(child => {
       let data = Object.assign({}, child);
@@ -191,61 +212,88 @@ class SplitProduct extends Component {
         String(this.props.match.params.productId).valueOf(),
         child.name,
         this.productDescription(child),
-        child.latitude ? child.latitude.toString() : this.state.latitude.toString(),
-        child.latitude ? child.longitude.toString() : this.state.longitude.toString(),
-        Object.keys(child.certifications)
-          .filter(cert => child.certifications[cert] === true),
-        JSON.stringify(data), {
+        child.latitude
+          ? child.latitude.toString()
+          : this.state.latitude.toString(),
+        child.latitude
+          ? child.longitude.toString()
+          : this.state.longitude.toString(),
+        Object.keys(child.certifications).filter(
+          cert => child.certifications[cert] === true
+        ),
+        JSON.stringify(data),
+        {
           from: this.props.web3Accounts[0],
 
           gas: 800000000
-        });
-    })
+        }
+      );
+    });
   };
 
   renderProductForm = index => {
     const data = this.state.children[index];
 
     return (
-      <div key={ index } style={ {marginBottom: 40} }>
+      <div key={index} style={{ marginBottom: 40 }}>
         <FormGroup>
-          <Label>Sifra tretiranog otpada</Label>
-          <Input placeholder="Sifra otpada" value={ data.name } onChange={ this.updateChildState(index, "name") }/>
+          <Label>Waste ID</Label>
+          <Input
+            placeholder="Waste ID"
+            value={data.name}
+            onChange={this.updateChildState(index, "name")}
+          />
         </FormGroup>
         <FormGroup>
-          <Label>Vlasnik</Label>
-          <Input disabled placeholder="Vlasnik" value={ data["Vlasnik"] }/>
+          <Label>Owner</Label>
+          <Input disabled placeholder="Owner" value={data["Owner"]} />
         </FormGroup>
         <FormGroup>
-          <Label>Nacin Pakovanja</Label>
-          <Input type="select" defaultValue={ data["Nacin Pakovanja"] } onChange={ this.updateChildState(index, "Nacin Pakovanja") }>
-            <option disabled value="">(izaberite)</option>
-            <option value="Bala">Bala</option>
+          <Label>Packaging</Label>
+          <Input
+            type="select"
+            defaultValue={data["Packaging"]}
+            onChange={this.updateChildState(index, "Packaging")}
+          >
+            <option disabled value="">
+              (select)
+            </option>
+            <option value="Bale">Bale</option>
             <option value="Rinfuz">Rinfuz</option>
-            <option value="Drveno Bure">Drveno Bure</option>
-            <option value="Kanister">Kanister</option>
-            <option value="Sanduk">Sanduk</option>
-            <option value="Kesa">Kesa</option>
-            <option value="Posude pod pritiskom">Posude pod pritiskom</option>
-            <option value="Kompozitno pakovanje">Kompozitno pakovanje</option>
-            <option value="Rasuto stanje">Rasuto stanje</option>
-            <option value="Ostalo">Ostalo</option>
+            <option value="Wooder Barrel">Wooder Barrel</option>
+            <option value="Canister">Canister</option>
+            <option value="Coffin">Coffin</option>
+            <option value="Sac">Sac</option>
+            <option value="Pressurized container">Pressurized container</option>
+            <option value="Composit packaging">Composit packaging</option>
+            <option value="Scattered state">Scattered state</option>
+            <option value="Other">Other</option>
           </Input>
         </FormGroup>
         <FormGroup>
-          <Label>Tip Otpada</Label>
-          <Input type="select" defaultValue={ data["Tip Otpada"] } onChange={ this.updateChildState(index, "Tip Otpada") }>
-            <option disabled value="">(izaberite)</option>
-            <option value="Opasan otpad">Opasan otpad</option>
-            <option value="Neopasan otpad">Neopasan otpad</option>
-            <option value="Energent">Energent</option>
-            <option value="Reciklat">Reciklat</option>
+          <Label>Waste Type</Label>
+          <Input
+            type="select"
+            defaultValue={data["Waste Type"]}
+            onChange={this.updateChildState(index, "Waste Type")}
+          >
+            <option disabled value="">
+              (select)
+            </option>
+            <option value="Dangerous waste">Dangerous waste</option>
+            <option value="Non-dangerous waste">Non-dangerous waste</option>
+            <option value="Energy waste">Energy waste</option>
+            <option value="Recyclable waste">Recyclable waste</option>
           </Input>
         </FormGroup>
         <FormGroup>
-          <Label>Kolicina (kg)</Label>
-          <Input placeholder='npr. 1000' type='number' value={ data["Kolicina (kg)"] || '' }
-                 onChange={ this.updateChildState(index, "Kolicina (kg)") }/>
+          <Label>Weight (kg)</Label>
+          <Input
+            placeholder="eg. 1000"
+            type="number"
+            value={data["Weight (kg)"] || ""}
+            onChange={this.updateChildState(index, "Weight (kg)")}
+          />
         </FormGroup>
       </div>
     );
@@ -259,23 +307,27 @@ class SplitProduct extends Component {
 
     return (
       <div>
-        { /* Section des produits */ }
+        {/* Section des produits */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faUngroup }/>
-              Tretman otpada
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faUngroup}
+              />
+              Waste Treatment
             </div>
           }
           panelContent={
             <div>
-              <h2>Rezultat tretiranja</h2>
+              <h2>Treatment result</h2>
               <FormGroup>
-                { indexes.map(index => {
-                  return this.renderProductForm(index)
-                }) }
-                <Link to="#" onClick={ () => this.addChild() }>
-                  Dodaj
+                {indexes.map(index => {
+                  return this.renderProductForm(index);
+                })}
+                <Link to="#" onClick={() => this.addChild()}>
+                  Add
                 </Link>
               </FormGroup>
             </div>
@@ -285,14 +337,23 @@ class SplitProduct extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faWrench }/>
-              Akcije
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faWrench}
+              />
+              Actions
             </div>
           }
           panelContent={
             <div>
-              <Button disabled={ this.state.buttonDisabled } color="primary" onClick={ this.handleSplitProduct }>Tretiraj
-                otpad</Button>
+              <Button
+                disabled={this.state.buttonDisabled}
+                color="primary"
+                onClick={this.handleSplitProduct}
+              >
+                Treat waste
+              </Button>
             </div>
           }
         />

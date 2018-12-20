@@ -51,8 +51,8 @@ class MyProducts extends Component {
       return (
         <Link key={index} to={`/products/${product.id}`}>
           <div key={index}>
-            <b>{product.name || "Otpad"}</b> &mdash;{" "}
-            {product.description || "Otpad"}
+            <b>{product.name || "Waste"}</b> &mdash;{" "}
+            {product.description || "Waste"}
             <hr />
           </div>
         </Link>
@@ -86,9 +86,9 @@ class MyProducts extends Component {
                 style={{ paddingTop: "3px", marginRight: "6px" }}
                 icon={faList}
               />
-              Lista otpada
+              Waste
               <Link style={{ marginLeft: "10px" }} to="/create">
-                Napravi +
+                Create +
               </Link>
             </div>
           }
@@ -98,9 +98,9 @@ class MyProducts extends Component {
                 products
               ) : (
                 <div>
-                  Ne postoji registrovan otpad.
+                  No registered waste.
                   <Link style={{ marginLeft: "10px" }} to="/create">
-                    Unesi Otpad
+                    Add Waste
                   </Link>
                 </div>
               )}
@@ -115,19 +115,19 @@ class MyProducts extends Component {
                 style={{ paddingTop: "3px", marginRight: "6px" }}
                 icon={faGroup}
               />
-              Spoji otpad
+              Combine Waste
             </div>
           }
           panelContent={
             <div>
               <div>
                 <Link style={{ marginLeft: "10px" }} to="/combineList">
-                  Preko liste
+                  Via list
                 </Link>
               </div>
               <div>
                 <Link style={{ marginLeft: "10px" }} to="/combineScan">
-                  Preko QR koda
+                  Via QR code
                 </Link>
               </div>
             </div>

@@ -1,27 +1,26 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux';
-import QRCode from 'qrcode.react'
-import { Link } from 'react-router-dom'
-import { GoogleMap, Marker, Polyline, withGoogleMap } from "react-google-maps"
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import QRCode from "qrcode.react";
+import { Link } from "react-router-dom";
+import { GoogleMap, Marker, Polyline, withGoogleMap } from "react-google-maps";
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faInfoCircle from '@fortawesome/fontawesome-free-solid/faInfoCircle'
-import faThumbtack from '@fortawesome/fontawesome-free-solid/faThumbtack'
-import faWrench from '@fortawesome/fontawesome-free-solid/faWrench'
-import faMapMarker from '@fortawesome/fontawesome-free-solid/faMapMarker'
-import faCertificate from '@fortawesome/fontawesome-free-solid/faCertificate'
-import faHistory from '@fortawesome/fontawesome-free-solid/faHistory'
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faInfoCircle from "@fortawesome/fontawesome-free-solid/faInfoCircle";
+import faThumbtack from "@fortawesome/fontawesome-free-solid/faThumbtack";
+import faWrench from "@fortawesome/fontawesome-free-solid/faWrench";
+import faMapMarker from "@fortawesome/fontawesome-free-solid/faMapMarker";
+import faCertificate from "@fortawesome/fontawesome-free-solid/faCertificate";
+import faHistory from "@fortawesome/fontawesome-free-solid/faHistory";
 
-import AnnotatedSection from '../components/AnnotatedSection'
+import AnnotatedSection from "../components/AnnotatedSection";
 
-import { Button, Table } from 'reactstrap';
+import { Button, Table } from "reactstrap";
 
 /*
   View component
   @description Page component that displays a product's information.
 */
 class View extends Component {
-
   constructor(props) {
     super(props);
 
@@ -46,11 +45,15 @@ class View extends Component {
 
   // fetch a product from the blockchain by productId (optionally, a "versionId" of that product can be specified)
   fetchProduct(props) {
-
     // get the requested product (at the requested version if specified, otherwise it gets the latest version)
-    this.props.passageInstance.getProductById(String(props.match.params.productId).valueOf(), props.match.params.versionId ? String(props.match.params.versionId).valueOf() : "latest")
-      .then((result) => {
-
+    this.props.passageInstance
+      .getProductById(
+        String(props.match.params.productId).valueOf(),
+        props.match.params.versionId
+          ? String(props.match.params.versionId).valueOf()
+          : "latest"
+      )
+      .then(result => {
         // once we have the product data, we update the component's state
         this.setState({
           name: result[0],
@@ -61,80 +64,112 @@ class View extends Component {
           versions: [],
           id: props.match.params.productId,
           certifications: []
-        })
+        });
 
         // then, we fetch the product's certification details
         const certificationsArray = result[6];
-        certificationsArray.map((certificationId) => {
-          return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
-            .then((certificationResult) => {
+        certificationsArray.map(certificationId => {
+          return this.props.passageInstance
+            .getCertificationById(String(certificationId).valueOf())
+            .then(certificationResult => {
               const certification = {
                 name: certificationResult[0],
                 imageUrl: certificationResult[1],
-                id: certificationId,
-              }
-              this.setState({certifications: [...this.state.certifications, certification]})
+                id: certificationId
+              };
+              this.setState({
+                certifications: [...this.state.certifications, certification]
+              });
             });
         });
 
         // then, we get the product's versions list
         const versionsArray = result[5];
-        versionsArray.map((versionId) => {
-          this.props.passageInstance.getVersionLatLngById(String(versionId).valueOf())
-            .then((latLngResult) => {
+        versionsArray.map(versionId => {
+          this.props.passageInstance
+            .getVersionLatLngById(String(versionId).valueOf())
+            .then(latLngResult => {
               const version = {
                 latitude: parseFloat(latLngResult[0]),
                 longitude: parseFloat(latLngResult[1]),
-                id: versionId,
-              }
-              this.setState({versions: [...this.state.versions, version]})
+                id: versionId
+              };
+              this.setState({ versions: [...this.state.versions, version] });
             });
           return false;
         });
       })
-      .catch((error) => {
+      .catch(error => {
         // if something goes wrong when fetching the product, we just redirect
         // to the home page to prevent displaying false/wrong information
-        return this.props.history.push('/');
-      })
+        return this.props.history.push("/");
+      });
 
     // also, we fetch the product's custom data fields and
     // add it to the rest of the product's data (in the component state)
-    this.props.passageInstance.getProductCustomDataById(String(props.match.params.productId).valueOf(), props.match.params.versionId ? String(props.match.params.versionId).valueOf() : "latest")
-      .then((result) => {
+    this.props.passageInstance
+      .getProductCustomDataById(
+        String(props.match.params.productId).valueOf(),
+        props.match.params.versionId
+          ? String(props.match.params.versionId).valueOf()
+          : "latest"
+      )
+      .then(result => {
         this.setState({
           customDataJson: result
-        })
+        });
       })
-      .catch((error) => {
+      .catch(error => {
         // if something goes wrong when fetching the product, we just redirect
         // to the home page to prevent displaying false/wrong information
-        return this.props.history.push('/');
-      })
+        return this.props.history.push("/");
+      });
   }
 
   render() {
-
     // this is the JSX of the versions list section of the page
-    const versionsList = this.state.versions.map((version, index) => {
-      return (
-        <li key={ index }>
-          <Link
-            to={ `/products/${this.props.match.params.productId}/versions/${version.id}` }>Stanje { index + 1 }</Link>
-        </li>
-      )
-    }).reverse()
+    const versionsList = this.state.versions
+      .map((version, index) => {
+        return (
+          <li key={index}>
+            <Link
+              to={`/products/${this.props.match.params.productId}/versions/${
+                version.id
+              }`}
+            >
+              Version {index + 1}
+            </Link>
+          </li>
+        );
+      })
+      .reverse();
 
     // this is the JSX of certifications list
-    const certificationsList = this.state.certifications.map((certification, index) => {
-      return (
-        <div style={ {display: "inline-block", marginRight: "15px", width: "100px", height: "100px"} } key={ index }>
-          { certification.imageUrl ?
-            <img style={ {width: "100%"} } alt={ "Product has certification " + certification.name }
-                 src={ certification.imageUrl }/> : <div>{ certification.name }</div> }
-        </div>
-      )
-    })
+    const certificationsList = this.state.certifications.map(
+      (certification, index) => {
+        return (
+          <div
+            style={{
+              display: "inline-block",
+              marginRight: "15px",
+              width: "100px",
+              height: "100px"
+            }}
+            key={index}
+          >
+            {certification.imageUrl ? (
+              <img
+                style={{ width: "100%" }}
+                alt={"Product has certification " + certification.name}
+                src={certification.imageUrl}
+              />
+            ) : (
+              <div>{certification.name}</div>
+            )}
+          </div>
+        );
+      }
+    );
 
     // here's a bunch of stuff related to the Google Maps embed
     const currentLat = this.state.latitude;
@@ -143,197 +178,242 @@ class View extends Component {
     // array of map markers
     const markersJSX = this.state.versions.map((version, index) => {
       return (
-        <Marker key={ index } label={ (index + 1).toString() }
-                position={ {lat: version.latitude, lng: version.longitude} }/>
-      )
-    })
+        <Marker
+          key={index}
+          label={(index + 1).toString()}
+          position={{ lat: version.latitude, lng: version.longitude }}
+        />
+      );
+    });
 
     // array of the versions' positions
     const versionsLatLngs = this.state.versions.map((version, index) => {
-      return {lat: version.latitude, lng: version.longitude}
+      return { lat: version.latitude, lng: version.longitude };
     });
 
     // used to display a line between the various versions' position markers
     const polylineJSX = (
       <Polyline
-        path={ versionsLatLngs }
+        path={versionsLatLngs}
         geodesic
-        options={ {
-          strokeColor: 'red',
+        options={{
+          strokeColor: "red",
           strokeOpacity: 0.5,
           strokeWeight: 4
-        } }
+        }}
       />
-    )
+    );
 
     // the actual map component, which contains the markers and the line
-    const MyMapComponent = withGoogleMap((props) =>
+    const MyMapComponent = withGoogleMap(props => (
       <GoogleMap
-        defaultZoom={ 8 }
-        defaultCenter={ {lat: currentLat, lng: currentLng} }
+        defaultZoom={8}
+        defaultCenter={{ lat: currentLat, lng: currentLng }}
       >
         <div>
-          { markersJSX }
-          { polylineJSX }
+          {markersJSX}
+          {polylineJSX}
         </div>
       </GoogleMap>
-    )
+    ));
 
     // used to define the customData to display whether it's available in the state
-    const customData = this.state.customDataJson ? JSON.parse(this.state.customDataJson) : {};
+    const customData = this.state.customDataJson
+      ? JSON.parse(this.state.customDataJson)
+      : {};
 
     // the actual JSX that we return is below
     return (
       <div>
-        { /* Product definition section */ }
+        {/* Product definition section */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faInfoCircle }/>
-              Informacije
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faInfoCircle}
+              />
+              Information
             </div>
           }
           panelContent={
             <Table>
               <tbody>
-              <tr>
-                <th scope="row">Name</th>
-                <td>{ this.state.name }</td>
-              </tr>
-              <tr>
-                <th scope="row">Poslednji put azuriran</th>
-                <td>{ this.state.versionCreationDate }</td>
-              </tr>
-              {
-                Object.keys(customData)
-                  .filter(key => key !== "Vrsta Transporta" || customData["Faza"] === "Transport")
-                  .map(key =>
-                  <tr key={ key }>
-                    <th scope="row">{ key }</th>
-                    <td>{ customData[key] }</td>
-                  </tr>
-                )
-              }
+                <tr>
+                  <th scope="row">Name</th>
+                  <td>{this.state.name}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Updated at</th>
+                  <td>{this.state.versionCreationDate}</td>
+                </tr>
+                {Object.keys(customData)
+                  .filter(
+                    key =>
+                      key !== "Transport Type" ||
+                      customData["Phase"] === "Transport"
+                  )
+                  .map(key => (
+                    <tr key={key}>
+                      <th scope="row">{key}</th>
+                      <td>{customData[key]}</td>
+                    </tr>
+                  ))}
               </tbody>
             </Table>
           }
         />
 
-        { /* QR code section */ }
+        {/* QR code section */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faThumbtack }/>
-              Identifikator
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faThumbtack}
+              />
+              Identifier
             </div>
           }
           panelContent={
             <div>
-              <QRCode value={ this.props.match.params.productId }/>
+              <QRCode value={this.props.match.params.productId} />
               <div>
-                <pre>{ this.state.id }</pre>
+                <pre>{this.state.id}</pre>
               </div>
             </div>
           }
         />
 
-        { /* Actions section */ }
+        {/* Actions section */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faWrench }/>
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faWrench}
+              />
               Actions
             </div>
           }
           panelContent={
             <div>
-              { this.props.match.params.versionId && this.state.versions && this.state.versions.length > 0 && this.props.match.params.versionId.toString() !== this.state.versions.slice(-1)[0].id.toString() ?
-                <Link to={ "/products/" + this.props.match.params.productId }>
-                  <Button color="info">
-                    Pogledaj poslednje stanje
-                  </Button>
+              {this.props.match.params.versionId &&
+              this.state.versions &&
+              this.state.versions.length > 0 &&
+              this.props.match.params.versionId.toString() !==
+                this.state.versions.slice(-1)[0].id.toString() ? (
+                <Link to={"/products/" + this.props.match.params.productId}>
+                  <Button color="info">Latest state</Button>
                 </Link>
-                :
-                <Link to={ "/products/" + this.props.match.params.productId + "/update" }>
-                  <Button color="success">
-                    Izmeni
-                  </Button>
+              ) : (
+                <Link
+                  to={
+                    "/products/" + this.props.match.params.productId + "/update"
+                  }
+                >
+                  <Button color="success">Change</Button>
                 </Link>
-              }
-              <Link style={ {marginLeft: "10px"} }
-                    to={ "/products/" + this.props.match.params.productId + "/transport" }>
-                <Button color="warning">
-                  Transport
-                </Button>
+              )}
+              <Link
+                style={{ marginLeft: "10px" }}
+                to={
+                  "/products/" +
+                  this.props.match.params.productId +
+                  "/transport"
+                }
+              >
+                <Button color="warning">Transport</Button>
               </Link>
-              <Link style={ {marginLeft: "10px"} } to={ "/products/" + this.props.match.params.productId + "/storage" }>
-                <Button color="warning">
-                  Skladistenje
-                </Button>
+              <Link
+                style={{ marginLeft: "10px" }}
+                to={
+                  "/products/" + this.props.match.params.productId + "/storage"
+                }
+              >
+                <Button color="warning">Storage</Button>
               </Link>
-              <Link style={ {marginLeft: "10px"} } to={ "/products/" + this.props.match.params.productId + "/split" }>
-                <Button color="warning">
-                  Tretman
-                </Button>
+              <Link
+                style={{ marginLeft: "10px" }}
+                to={"/products/" + this.props.match.params.productId + "/split"}
+              >
+                <Button color="warning">Treatment</Button>
               </Link>
             </div>
           }
         />
 
-        { /* Google Maps section */ }
+        {/* Google Maps section */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faMapMarker }/>
-              Lokacija
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faMapMarker}
+              />
+              Location
             </div>
           }
           panelContent={
             <div>
-              { currentLat && currentLng ?
+              {currentLat && currentLng ? (
                 <div>
-                  <pre>{ currentLat }, { currentLng }</pre>
+                  <pre>
+                    {currentLat}, {currentLng}
+                  </pre>
                   <MyMapComponent
-                    loadingElement={ <div style={ {height: `100%`} }/> }
-                    containerElement={ <div style={ {height: `400px`} }/> }
-                    mapElement={ <div style={ {height: `100%`} }/> }
+                    loadingElement={<div style={{ height: `100%` }} />}
+                    containerElement={<div style={{ height: `400px` }} />}
+                    mapElement={<div style={{ height: `100%` }} />}
                   />
                 </div>
-                :
+              ) : (
                 <p>Unable to display the product's location.</p>
-              }
+              )}
             </div>
           }
         />
 
-        { /* Certifications section */ }
+        {/* Certifications section */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faCertificate }/>
-              Dozvola za upravljanje otpadom
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faCertificate}
+              />
+              Licence for managing waste
             </div>
           }
           panelContent={
             <div>
-              { certificationsList && certificationsList.length > 0 ? certificationsList : "Bez dozvole." }
+              {certificationsList && certificationsList.length > 0
+                ? certificationsList
+                : "No licences."}
             </div>
           }
         />
 
-        { /* Versions section */ }
+        {/* Versions section */}
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faHistory }/>
-              Istorijat stanja
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faHistory}
+              />
+              Waste history
             </div>
           }
           panelContent={
             <div>
-              <ul>
-                { versionsList }
-              </ul>
+              <ul>{versionsList}</ul>
             </div>
           }
         />

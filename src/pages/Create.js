@@ -1,24 +1,26 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom'
-import { Button, FormGroup, Input, Label } from 'reactstrap';
-import AnnotatedSection from '../components/AnnotatedSection'
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faStar from '@fortawesome/fontawesome-free-solid/faStar'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import { Button, FormGroup, Input, Label } from "reactstrap";
+import AnnotatedSection from "../components/AnnotatedSection";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng
+} from "react-places-autocomplete";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faStar from "@fortawesome/fontawesome-free-solid/faStar";
 
 class Create extends Component {
-
   constructor(props) {
     super(props);
 
     // initialize the component's state
     this.state = {
-      name: '',
-      description: '',
-      latitude: '',
-      longitude: '',
-      address: '',
+      name: "",
+      description: "",
+      latitude: "",
+      longitude: "",
+      address: "",
       availableCertifications: [],
       selectedCertifications: {},
       customDataInputs: {},
@@ -29,41 +31,53 @@ class Create extends Component {
       selectedSubcategory: null,
       format: null,
       type: null,
-      weight: null,
+      weight: null
     };
-    this.onChange = (address) => this.setState({address})
+    this.onChange = address => this.setState({ address });
   }
 
   // when the page is loaded, fetch all available certifications
   componentDidMount() {
-    this.props.passageInstance.getActorCertificationsIds({from: this.props.web3Accounts[0]})
-      .then((result) => {
-        result.map((certificationId) => {
-          return this.props.passageInstance.getCertificationById(String(certificationId).valueOf())
-            .then((result) => {
+    this.props.passageInstance
+      .getActorCertificationsIds({ from: this.props.web3Accounts[0] })
+      .then(result => {
+        result.map(certificationId => {
+          return this.props.passageInstance
+            .getCertificationById(String(certificationId).valueOf())
+            .then(result => {
               const certification = {
                 name: result[0],
                 imageUrl: result[1],
-                id: certificationId,
+                id: certificationId
               };
-              return this.setState({availableCertifications: [...this.state.availableCertifications, certification]})
+              return this.setState({
+                availableCertifications: [
+                  ...this.state.availableCertifications,
+                  certification
+                ]
+              });
             });
         });
-      })
+      });
   }
 
   // method that updates the state when a certification is checked/unchecked
-  handleChange = (e) => {
+  handleChange = e => {
     const certificationId = e.target.name;
-    this.setState({selectedCertifications: {...this.state.selectedCertifications, [certificationId]: e.target.checked}})
+    this.setState({
+      selectedCertifications: {
+        ...this.state.selectedCertifications,
+        [certificationId]: e.target.checked
+      }
+    });
   };
 
-  productDescription = (product) => {
-    if (!product.Kategorija) {
-      return "Otpad"
+  productDescription = product => {
+    if (!product.Category) {
+      return "Waste";
     }
 
-    return `${product.Podkategorija} - ${product["Kolicina (kg)"]} kg`
+    return `${product.Subcategory} - ${product["Weight (kg)"]} kg`;
   };
 
   // method that sends the new product's information to the smart contract
@@ -73,7 +87,7 @@ class Create extends Component {
     const certificationsArray = [];
     Object.keys(selectedCertifications).map(key => {
       if (selectedCertifications[key] === true) {
-        return certificationsArray.push(key)
+        return certificationsArray.push(key);
       }
       return false;
     });
@@ -87,16 +101,15 @@ class Create extends Component {
       return false;
     });
 
-    customDataObject["Vlasnik"] = "Komanija A DOO";
-    customDataObject["Kategorija"] = this.state.selectedCategory;
-    customDataObject["Podkategorija"] = this.state.selectedSubcategory;
-    customDataObject["Tip Otpada"] = this.state.type;
-    customDataObject["Vrsta Otpada"] = this.state.vrsta;
-    customDataObject["Pripadnost Q Listi"] = this.state.qlista;
-    customDataObject["Nacin Pakovanja"] = this.state.format;
-    customDataObject["Kolicina (kg)"] = this.state.weight;
-    customDataObject["Faza"] = "Baliranje";
-
+    customDataObject["Owner"] = "Company A";
+    customDataObject["Category"] = this.state.selectedCategory;
+    customDataObject["Subcategory"] = this.state.selectedSubcategory;
+    customDataObject["Waste Type"] = this.state.type;
+    customDataObject["Waste Classification"] = this.state.vrsta;
+    customDataObject["Q List"] = this.state.qlista;
+    customDataObject["Packaging"] = this.state.format;
+    customDataObject["Weight (kg)"] = this.state.weight;
+    customDataObject["Phase"] = "Baliranje";
 
     // actually call the smart contract method
     this.props.passageInstance.createProduct(
@@ -105,33 +118,46 @@ class Create extends Component {
       this.state.latitude.toString(),
       this.state.longitude.toString(),
       certificationsArray,
-      JSON.stringify(customDataObject), {
+      JSON.stringify(customDataObject),
+      {
         from: this.props.web3Accounts[0],
         gas: 1000000
-      })
+      }
+    );
   };
 
-  handleGeoSelect = (address) => {
-    this.setState({address, buttonDisabled: true});
+  handleGeoSelect = address => {
+    this.setState({ address, buttonDisabled: true });
 
     geocodeByAddress(this.state.address)
       .then(results => getLatLng(results[0]))
       .then(latLng => {
-        this.setState({latitude: latLng.lat, longitude: latLng.lng, buttonDisabled: false})
+        this.setState({
+          latitude: latLng.lat,
+          longitude: latLng.lng,
+          buttonDisabled: false
+        });
       })
-      .catch(error => console.error('Error', error))
+      .catch(error => console.error("Error", error));
   };
 
   // reflected on the page by the render() function
   appendInput(key = "", value = "") {
-    var newInputKey = `input-${Object.keys(this.state.customDataInputs).length}`; // this might not be a good idea (e.g. when removing then adding more inputs)
-    this.setState({customDataInputs: {...this.state.customDataInputs, [newInputKey]: {key: key, value: value}}});
+    var newInputKey = `input-${
+      Object.keys(this.state.customDataInputs).length
+    }`; // this might not be a good idea (e.g. when removing then adding more inputs)
+    this.setState({
+      customDataInputs: {
+        ...this.state.customDataInputs,
+        [newInputKey]: { key: key, value: value }
+      }
+    });
   }
 
-  updateInputState = (name) => (e) => {
+  updateInputState = name => e => {
     this.setState({
       [name]: e.target.value
-    })
+    });
   };
 
   render() {
@@ -140,232 +166,321 @@ class Create extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={ {paddingTop: "3px", marginRight: "6px"} } icon={ faStar }/>
-              Unos otpada
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faStar}
+              />
+              Waste information
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                <Label>Sifra otpada</Label>
-                <Input placeholder="Sifra otpada" value={ this.state.name } onChange={ this.updateInputState("name") }/>
+                <Label>Waste ID</Label>
+                <Input
+                  placeholder="Waste ID"
+                  value={this.state.name}
+                  onChange={this.updateInputState("name")}
+                />
               </FormGroup>
               <FormGroup>
-                <Label>Vlasnik</Label>
-                <Input disabled placeholder="Vlasnik" value={ "Kompanija A DOO" }/>
+                <Label>Owner</Label>
+                <Input disabled placeholder="Owner" value={"Company A"} />
               </FormGroup>
               <FormGroup>
-                <Label>Klasifikacija otpada</Label>
-                <Input type="select" defaultValue="" onChange={ this.updateInputState("selectedCategory") }>
-                  <option disabled value="" key="none">(izaberite)</option>
-                  <option value="PET" key="PET">PET</option>
-                  <option value="HDPE" key="HDPE">HDPE</option>
-                  <option value="PVC" key="PVC">PVC</option>
-                  <option value="LDPE" key="LDPE">LDPE</option>
-                  <option value="PP" key="PP">PP</option>
-                  <option value="PS" key="PS">PS</option>
-                  <option value="Ostalo" key="Ostalo">Ostalo</option>
+                <Label>Waste categorization</Label>
+                <Input
+                  type="select"
+                  defaultValue=""
+                  onChange={this.updateInputState("selectedCategory")}
+                >
+                  <option disabled value="" key="none">
+                    (select)
+                  </option>
+                  <option value="PET" key="PET">
+                    PET
+                  </option>
+                  <option value="HDPE" key="HDPE">
+                    HDPE
+                  </option>
+                  <option value="PVC" key="PVC">
+                    PVC
+                  </option>
+                  <option value="LDPE" key="LDPE">
+                    LDPE
+                  </option>
+                  <option value="PP" key="PP">
+                    PP
+                  </option>
+                  <option value="PS" key="PS">
+                    PS
+                  </option>
+                  <option value="Other" key="Other">
+                    Other
+                  </option>
                 </Input>
-                { this.state.selectedCategory &&
-                <Input type="select"
-                       defaultValue=""
-                       onChange={ this.updateInputState("selectedSubcategory") }
-                       style={ {marginTop: 10} }>
-                  <option disabled value="" key="none">(izaberite)</option>
-                  <option value="15 01 02 - Plastična ambalaža" key="15 01 02 - Plastična ambalaža">
-                    15 01 02 - Plastična ambalaža
-                  </option>
-                  <option value="15 01 06 Mešana ambalaža" key="15 01 06 Mešana ambalaža">
-                    15 01 06 Mešana ambalaža
-                  </option>
-                  <option value="02 01 04 - Otpadna plastika" key="02 01 04 - Otpadna plastika">
-                    02 01 04 - Otpadna plastika
-                  </option>
-                </Input> }
+                {this.state.selectedCategory && (
+                  <Input
+                    type="select"
+                    defaultValue=""
+                    onChange={this.updateInputState("selectedSubcategory")}
+                    style={{ marginTop: 10 }}
+                  >
+                    <option disabled value="" key="none">
+                      (select)
+                    </option>
+                    <option value="15 01 02 - Plastic" key="15 01 02 - Plastic">
+                      15 01 02 - Plastic
+                    </option>
+                    <option value="15 01 06 Mixed" key="15 01 06 Mixed">
+                      15 01 06 Mixed
+                    </option>
+                    <option
+                      value="02 01 04 - Waste plastic"
+                      key="02 01 04 - Waste plastic"
+                    >
+                      02 01 04 - Waste plastic
+                    </option>
+                  </Input>
+                )}
               </FormGroup>
               <FormGroup>
-                <Label>Vrsta otpada</Label>
-                <Input type="select" defaultValue="" onChange={ this.updateInputState("vrsta") }>
-                  <option disabled value="">(izaberite)</option>
-                  <option value="Komercijalni">Komercijalni</option>
+                <Label>Waste Classification</Label>
+                <Input
+                  type="select"
+                  defaultValue=""
+                  onChange={this.updateInputState("vrsta")}
+                >
+                  <option disabled value="">
+                    (select)
+                  </option>
+                  <option value="Commercial">Commercial</option>
                   <option value="Industrijski">Industrijski</option>
                 </Input>
               </FormGroup>
               <FormGroup>
-                <Label>Pripadnost Q Listi</Label>
-                <Input type="select" defaultValue="" onChange={ this.updateInputState("qlista") }>
-                  <option disabled value="">(izaberite)</option>
-                  <option value="Q1 - Ostaci od proizvodnje ili potrošnje koji nisu drugačije specificirani">
-                    Q1 - Ostaci od proizvodnje ili potrošnje koji nisu drugačije specificirani
+                <Label>Q List</Label>
+                <Input
+                  type="select"
+                  defaultValue=""
+                  onChange={this.updateInputState("qlista")}
+                >
+                  <option disabled value="">
+                    (select)
                   </option>
-                  <option value="Q2 - Proizvodi bez specifikacija">
-                    Q2 - Proizvodi bez specifikacija
+                  <option value="Q1 - Leftovers from production or consumption which aren't otherwise specified">
+                    Q1 - Leftovers from production or consumption which aren't
+                    otherwise specified
                   </option>
-                  <option value="Q3 - Proizvodi čiji je rok upotrebe istekao">
-                    Q3 - Proizvodi čiji je rok upotrebe istekao
+                  <option value="Q2 - Products without specification">
+                    Q2 - Products without specification
                   </option>
-                  <option value="Q4 - Prosuti materijali, materijali koji su nastali usled gubitka ili nezgode pri postupanju
-sa njima, uključujući sve materijale, opremu i sl. kontaminirane pri nezgodi">
-                    Q4 - Prosuti materijali, materijali koji su nastali usled gubitka ili nezgode pri postupanju
-                    sa njima, uključujući sve materijale, opremu i sl. kontaminirane pri nezgodi
+                  <option value="Q3 - Product whose best before date has expired">
+                    Q3 - Product whose best before date has expired
                   </option>
-                  <option value="Q5 - Kontaminirani ili zaprljani materijali nastali u toku planiranog postupka (npr.
-ostaci od postupaka čišćenja, materijali za pakovanje, kontejneri)">
-                    Q5 - Kontaminirani ili zaprljani materijali nastali u toku planiranog postupka (npr.
-                    ostaci od postupaka čišćenja, materijali za pakovanje, kontejneri)
+                  <option value="Q4 - Spilled materials, materials which were created due to loss or acident when handling waste, including all materials, equipment and similar contaminated in the accident">
+                    Q4 - Spilled materials, materials which were created due to
+                    loss or acident when handling waste, including all
+                    materials, equipment and similar contaminated in the
+                    accident
                   </option>
-                  <option value="Q6 - Neupotrebljivi delovi (npr. istrošene baterije, katalizatori i dr.)">
-                    Q6 - Neupotrebljivi delovi (npr. istrošene baterije, katalizatori i dr.)
+                  <option value="Q5 - Contaminated or dirty materials created in the process of planned procedure (eg. waste from cleaning procedure)">
+                    Q5 - Contaminated or dirty materials created in the process
+                    of planned procedure (eg. waste from cleaning procedure)
                   </option>
-                  <option value="Q7 - Supstance koje više ne zadovoljavaju (npr. kontaminirane kiseline ili rastvarači,
-istrošene soli za termičku obradu i dr.)">
-                    Q7 - Supstance koje više ne zadovoljavaju (npr. kontaminirane kiseline ili rastvarači,
-                    istrošene soli za termičku obradu i dr.)
+                  <option value="Q6 - Unusable parts (eg. used batteries, catalyst and others)">
+                    Q6 - Unusable parts (eg. used batteries, catalyst and
+                    others)
                   </option>
-                  <option value="Q8 - Ostaci iz industrijskih procesa (npr. šljaka, destilacioni talozi i dr.)">
-                    Q8 - Ostaci iz industrijskih procesa (npr. šljaka, destilacioni talozi i dr.)
+                  <option value="Q7 - Substances which no longer satisfy requirements">
+                    Q7 - Substances which no longer satisfy requirements
                   </option>
-                  <option value="Q9 - Ostaci iz procesa za smanjenje zagađenja (npr. mulj iz uređaja za vlažno
-prečišćavanje gasova, prašina iz vrećastih filtera, potrošeni filteri)">
-                    Q9 - Ostaci iz procesa za smanjenje zagađenja (npr. mulj iz uređaja za vlažno
-                    prečišćavanje gasova, prašina iz vrećastih filtera, potrošeni filteri)
+                  <option value="Q8 - Leftovers from industrial processes">
+                    Q8 - Leftovers from industrial processes
                   </option>
-                  <option value="Q10 - Ostaci od mašinske grube/fine obrade (npr. strugotine, opiljci i otpaci od glodanja i
-sl.)">
-                    Q10 - Ostaci od mašinske grube/fine obrade (npr. strugotine, opiljci i otpaci od glodanja i
-                    sl.)
+                  <option value="Q9 - Waste from the process of polution reduction">
+                    Q9 - Waste from the process of polution reduction
                   </option>
-                  <option
-                    value="Q11 - Ostaci od ekstrakcije i prerade sirovina (npr. otpad iz rudarstva, naftne isplake i dr.)">
-                    Q11 - Ostaci od ekstrakcije i prerade sirovina (npr. otpad iz rudarstva, naftne isplake i dr.)
+                  <option value="Q10 - Waste from mechanical course/fine processing">
+                    Q10 - Waste from mechanical course/fine processing
                   </option>
-                  <option value="Q12 - Materijali čiji je prvobitni sastav iskvaren (npr. ulje zagađeno polihlorovanim
-bifenilima - RSV i dr.)">
-                    Q12 - Materijali čiji je prvobitni sastav iskvaren (npr. ulje zagađeno polihlorovanim
-                    bifenilima - RSV i dr.)
+                  <option value="Q11 - Waste from extraction and processing of materials">
+                    Q11 - Waste from extraction and processing of materials
                   </option>
-                  <option value="Q13 - Svaka materija, materijal ili proizvod čije je korišćenje zabranjeno">
-                    Q13 - Svaka materija, materijal ili proizvod čije je korišćenje zabranjeno
+                  <option value="Q12 - Materials whose initial composition is contaminated">
+                    Q12 - Materials whose initial composition is contaminated
                   </option>
-                  <option value="Q14 - Proizvodi koje njihov vlasnik odbacuje kao neupotrebljive (npr.
-poljoprivredni otpad, otpad iz domaćinstva, kancelarijski, komercijalni i otpad iz
-trgovina i sl.)">
-                    Q14 - Proizvodi koje njihov vlasnik odbacuje kao neupotrebljive (npr.
-                    poljoprivredni otpad, otpad iz domaćinstva, kancelarijski, komercijalni i otpad iz
-                    trgovina i sl.)
+                  <option value="Q13 - Any matter, material or product which usage is forbidden">
+                    Q13 - Any matter, material or product which usage is
+                    forbidden
                   </option>
-                  <option value="Q15 - Kontaminirani materijali, materije ili proizvodi nastali u procesu remedijacije
-zemljišta">
-                    Q15 - Kontaminirani materijali, materije ili proizvodi nastali u procesu remedijacije
-                    zemljišta
+                  <option value="Q14 - Product whose owner is discarding as unusable">
+                    Q14 - Product whose owner is discarding as unusable
                   </option>
-                  <option value="Q16 - Bilo koji drugi materijali, materije ili proizvodi koji nisu obuhvaćeni u gore
-navedenim kategorijama">
-                    Q16 - Bilo koji drugi materijali, materije ili proizvodi koji nisu obuhvaćeni u gore
-                    navedenim kategorijama
+                  <option value="Q15 - Contaminated materials, matter or product created in the process of remediation of land">
+                    Q15 - Contaminated materials, matter or product created in
+                    the process of remediation of land
+                  </option>
+                  <option value="Q16 - Any other material, matter or product that is not encompassed in the above mentioned categories">
+                    Q16 - Any other material, matter or product that is not
+                    encompassed in the above mentioned categories
                   </option>
                 </Input>
               </FormGroup>
               <FormGroup>
-                <Label>Nacin Pakovanja</Label>
-                <Input type="select" defaultValue="" onChange={ this.updateInputState("format") }>
-                  <option disabled value="">(izaberite)</option>
-                  <option value="Bala">Bala</option>
+                <Label>Packaging</Label>
+                <Input
+                  type="select"
+                  defaultValue=""
+                  onChange={this.updateInputState("format")}
+                >
+                  <option disabled value="">
+                    (select)
+                  </option>
+                  <option value="Bale">Bale</option>
                   <option value="Rinfuz">Rinfuz</option>
-                  <option value="Drveno Bure">Drveno Bure</option>
-                  <option value="Kanister">Kanister</option>
-                  <option value="Sanduk">Sanduk</option>
-                  <option value="Kesa">Kesa</option>
-                  <option value="Posude pod pritiskom">Posude pod pritiskom</option>
-                  <option value="Kompozitno pakovanje">Kompozitno pakovanje</option>
-                  <option value="Rasuto stanje">Rasuto stanje</option>
-                  <option value="Ostalo">Ostalo</option>
+                  <option value="Wooder Barrel">Wooder Barrel</option>
+                  <option value="Canister">Canister</option>
+                  <option value="Coffin">Coffin</option>
+                  <option value="Sac">Sac</option>
+                  <option value="Pressurized container">
+                    Pressurized container
+                  </option>
+                  <option value="Composit packaging">Composit packaging</option>
+                  <option value="Scattered state">Scattered state</option>
+                  <option value="Other">Other</option>
                 </Input>
               </FormGroup>
               <FormGroup>
-                <Label>Tip Otpada</Label>
-                <Input type="select" defaultValue="" onChange={ this.updateInputState("type") }>
-                  <option disabled value="">(izaberite)</option>
-                  <option value="Opasan otpad">Opasan otpad</option>
-                  <option value="Neopasan otpad">Neopasan otpad</option>
-                  <option value="Energent">Energent</option>
-                  <option value="Reciklat">Reciklat</option>
+                <Label>Waste Type</Label>
+                <Input
+                  type="select"
+                  defaultValue=""
+                  onChange={this.updateInputState("type")}
+                >
+                  <option disabled value="">
+                    (select)
+                  </option>
+                  <option value="Dangerous waste">Dangerous waste</option>
+                  <option value="Non-dangerous waste">
+                    Non-dangerous waste
+                  </option>
+                  <option value="Energy waste">Energy waste</option>
+                  <option value="Recyclable waste">Recyclable waste</option>
                 </Input>
               </FormGroup>
               <FormGroup>
-                <Label>Kolicina (kg)</Label>
-                <Input placeholder='npr. 1000' type='number' value={ this.state.weight || '' }
-                       onChange={ this.updateInputState("weight") }/>
+                <Label>Weight (kg)</Label>
+                <Input
+                  placeholder="eg. 1000"
+                  type="number"
+                  value={this.state.weight || ""}
+                  onChange={this.updateInputState("weight")}
+                />
               </FormGroup>
 
               <FormGroup>
-                <Label>Lokacija</Label>
+                <Label>Location</Label>
                 <PlacesAutocomplete
-                  inputProps={ {
+                  inputProps={{
                     value: this.state.address,
                     onChange: this.onChange,
-                    placeholder: "Tacna lokacija"
-                  } }
-                  onSelect={ this.handleGeoSelect }
-                  classNames={ {input: "form-control"} }
+                    placeholder: "Location"
+                  }}
+                  onSelect={this.handleGeoSelect}
+                  classNames={{ input: "form-control" }}
                 />
               </FormGroup>
               <FormGroup>
-                {
-                  // displays all custom data fields from the state
-                  Object.keys(this.state.customDataInputs).map(inputKey =>
-                    <FormGroup style={ {display: "flex"} } key={ inputKey }>
-                      <Input value={ this.state.customDataInputs[inputKey].key } placeholder="Osobina (npr. boja)"
-                             style={ {flex: 1, marginRight: "15px"} } onChange={ (e) => {
+                {// displays all custom data fields from the state
+                Object.keys(this.state.customDataInputs).map(inputKey => (
+                  <FormGroup style={{ display: "flex" }} key={inputKey}>
+                    <Input
+                      value={this.state.customDataInputs[inputKey].key}
+                      placeholder="Property (eg. color)"
+                      style={{ flex: 1, marginRight: "15px" }}
+                      onChange={e => {
                         this.setState({
                           customDataInputs: {
                             ...this.state.customDataInputs,
-                            [inputKey]: {...this.state.customDataInputs[inputKey], key: e.target.value}
+                            [inputKey]: {
+                              ...this.state.customDataInputs[inputKey],
+                              key: e.target.value
+                            }
                           }
-                        })
-                      } }/>
-                      <Input value={ this.state.customDataInputs[inputKey].value } placeholder="Vrednost (npr. crvena)"
-                             style={ {flex: 1} } onChange={ (e) => {
+                        });
+                      }}
+                    />
+                    <Input
+                      value={this.state.customDataInputs[inputKey].value}
+                      placeholder="Value (eg. red)"
+                      style={{ flex: 1 }}
+                      onChange={e => {
                         this.setState({
                           customDataInputs: {
                             ...this.state.customDataInputs,
-                            [inputKey]: {...this.state.customDataInputs[inputKey], value: e.target.value}
+                            [inputKey]: {
+                              ...this.state.customDataInputs[inputKey],
+                              value: e.target.value
+                            }
                           }
-                        })
-                      } }/>
-                    </FormGroup>
-                  )
-                }
-                <Link to="#" onClick={ () => this.appendInput() }>
-                  Unesi dodatne informacije
+                        });
+                      }}
+                    />
+                  </FormGroup>
+                ))}
+                <Link to="#" onClick={() => this.appendInput()}>
+                  Add additional information
                 </Link>
               </FormGroup>
               <FormGroup>
                 <Label>
-                  Dozvole za upravljanje otpadom
-                  <Link style={ {marginLeft: "10px"} } to="/createcertification">Dodaj +</Link>
+                  Licences for managing waste
+                  <Link
+                    style={{ marginLeft: "10px" }}
+                    to="/createcertification"
+                  >
+                    Add +
+                  </Link>
                 </Label>
                 <div>
-                  {
-                    // displays all available certifications
-                    this.state.availableCertifications && this.state.availableCertifications.length > 0 ?
-                      this.state.availableCertifications.map((certification, index) =>
-                        <div key={ index }>
-                          <input style={ {marginRight: "5px"} } onChange={ this.handleChange } name={ certification.id }
-                                 type="checkbox"/>
-                          <span>{ certification.name }</span>
+                  {// displays all available certifications
+                  this.state.availableCertifications &&
+                  this.state.availableCertifications.length > 0 ? (
+                    this.state.availableCertifications.map(
+                      (certification, index) => (
+                        <div key={index}>
+                          <input
+                            style={{ marginRight: "5px" }}
+                            onChange={this.handleChange}
+                            name={certification.id}
+                            type="checkbox"
+                          />
+                          <span>{certification.name}</span>
                         </div>
                       )
-                      :
-                      <div style={ {marginLeft: "15px"} }>
-                        Nema dostupnih dozvola.
-                        <Link style={ {marginLeft: "10px"} } to="/createcertification">Unesi dozvolu</Link>
-                      </div>
-                  }
+                    )
+                  ) : (
+                    <div style={{ marginLeft: "15px" }}>
+                      No available licences.
+                      <Link
+                        style={{ marginLeft: "10px" }}
+                        to="/createcertification"
+                      >
+                        Add Licence
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </FormGroup>
-              <Button disabled={ this.state.buttonDisabled } color="primary"
-                      onClick={ this.handleCreateNewProduct }>Sacuvaj</Button>
+              <Button
+                disabled={this.state.buttonDisabled}
+                color="primary"
+                onClick={this.handleCreateNewProduct}
+              >
+                Save
+              </Button>
             </div>
           }
         />

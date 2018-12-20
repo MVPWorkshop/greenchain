@@ -1,46 +1,43 @@
-import React, { Component } from 'react'
-import {connect} from 'react-redux';
-import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
-import { Link } from 'react-router-dom'
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng
+} from "react-places-autocomplete";
+import { Link } from "react-router-dom";
 
-import AnnotatedSection from '../components/AnnotatedSection'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import faqrcode from '@fortawesome/fontawesome-free-solid/faQrcode'
-import faWrench from '@fortawesome/fontawesome-free-solid/faWrench'
-import faStar from '@fortawesome/fontawesome-free-solid/faStar'
+import AnnotatedSection from "../components/AnnotatedSection";
+import FontAwesomeIcon from "@fortawesome/react-fontawesome";
+import faqrcode from "@fortawesome/fontawesome-free-solid/faQrcode";
+import faWrench from "@fortawesome/fontawesome-free-solid/faWrench";
+import faStar from "@fortawesome/fontawesome-free-solid/faStar";
 
-import {
-  Button,
-  FormGroup,
-  Label,
-  Input,
-} from 'reactstrap';
+import { Button, FormGroup, Label, Input } from "reactstrap";
 
 class CombineScan extends Component {
-
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      name: '',
-      description: '',
-      latitude: '',
-      longitude: '',
-      address: '',
+      name: "",
+      description: "",
+      latitude: "",
+      longitude: "",
+      address: "",
       buttonDisabled: false,
       productParts: {}
-    }
-    this.onChange = (address) => this.setState({ address })
+    };
+    this.onChange = address => this.setState({ address });
   }
 
   handleMergeProducts = () => {
-    var productPartsObject = []
+    var productPartsObject = [];
     Object.keys(this.state.productParts).map(inputKey => {
       const value = this.state.productParts[inputKey].value;
       if (value.length > 0) {
         productPartsObject.push(value);
       }
       return false;
-    })
+    });
     /* TODO Implement customdata merging with some choosing UI
     var customData = [];
     for (var i = 0; i < productPartsObject.length; ++i) {
@@ -51,57 +48,91 @@ class CombineScan extends Component {
         });
     }
     var customDataJson = JSON.stringify(customData);*/
-    this.props.passageInstance.combineProducts(productPartsObject, this.state.name, this.state.description, this.state.latitude.toString(), this.state.longitude.toString(), {from: this.props.web3Accounts[0], gas:1000000})
-      .then((result) => {
+    this.props.passageInstance
+      .combineProducts(
+        productPartsObject,
+        this.state.name,
+        this.state.description,
+        this.state.latitude.toString(),
+        this.state.longitude.toString(),
+        { from: this.props.web3Accounts[0], gas: 1000000 }
+      )
+      .then(result => {
         // product created! ... but we use an event watcher to show the success message, so nothing actuelly happens here after we create a product
-      })
-  }
+      });
+  };
 
-  handleSelect = (address) => {
-    this.setState({address, buttonDisabled: true})
+  handleSelect = address => {
+    this.setState({ address, buttonDisabled: true });
 
     geocodeByAddress(this.state.address)
       .then(results => getLatLng(results[0]))
       .then(latLng => {
-        this.setState({latitude: latLng.lat, longitude: latLng.lng, buttonDisabled: false})
+        this.setState({
+          latitude: latLng.lat,
+          longitude: latLng.lng,
+          buttonDisabled: false
+        });
       })
-      .catch(error => console.error('Error', error))
-  }
+      .catch(error => console.error("Error", error));
+  };
 
   appendInput() {
     var newInputKey = `input-${Object.keys(this.state.productParts).length}`; // this might not be a good idea (e.g. when removing then adding more inputs)
-    this.setState({ productParts: {...this.state.productParts, [newInputKey]: {key: "", value: ""} }});
+    this.setState({
+      productParts: {
+        ...this.state.productParts,
+        [newInputKey]: { key: "", value: "" }
+      }
+    });
   }
 
   render() {
     const inputProps = {
       value: this.state.address,
       onChange: this.onChange,
-      placeholder: "Tacna lokacija"
-    }
+      placeholder: "Location"
+    };
 
     return (
       <div>
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faqrcode}/>
-              Sifre otpada
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faqrcode}
+              />
+              Waste IDs
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                {
-                  Object.keys(this.state.productParts).map(inputKey =>
-                    <FormGroup style={{display:"flex"}} key={inputKey}>
-                      Sifra otpada:
-                      <Input placeholder="0x..." style={{flex: 1}} onChange={(e) => { this.setState({ productParts: {...this.state.productParts, [inputKey]: {...this.state.productParts[inputKey], key: inputKey, value: e.target.value} }})}}/>
-                    </FormGroup>
-                  )
-                }
-                <Link to="#" onClick={ () => this.appendInput() }>
-                  Dodaj otpad za spajanje
+                {Object.keys(this.state.productParts).map(inputKey => (
+                  <FormGroup style={{ display: "flex" }} key={inputKey}>
+                    Waste ID:
+                    <Input
+                      placeholder="0x..."
+                      style={{ flex: 1 }}
+                      onChange={e => {
+                        this.setState({
+                          productParts: {
+                            ...this.state.productParts,
+                            [inputKey]: {
+                              ...this.state.productParts[inputKey],
+                              key: inputKey,
+                              value: e.target.value
+                            }
+                          }
+                        });
+                      }}
+                    />
+                  </FormGroup>
+                ))}
+                <Link to="#" onClick={() => this.appendInput()}>
+                  Add waste to combine
                 </Link>
               </FormGroup>
             </div>
@@ -111,23 +142,33 @@ class CombineScan extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faStar}/>
-              Informacije o spojenom proizvodu
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faStar}
+              />
+              Information about combined waste
             </div>
           }
           panelContent={
             <div>
               <FormGroup>
-                  <Label>Sifra otpada</Label>
-                  <Input placeholder="Sifra otpada" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}></Input>
+                <Label>Waste ID</Label>
+                <Input
+                  placeholder="Waste ID"
+                  value={this.state.name}
+                  onChange={e => {
+                    this.setState({ name: e.target.value });
+                  }}
+                />
               </FormGroup>
               <FormGroup>
-                  <Label>Trenutna lokacija</Label>
-                  <PlacesAutocomplete
-                    inputProps={inputProps}
-                    onSelect={this.handleSelect}
-                    classNames={{input: "form-control"}}
-                  />
+                <Label>Location</Label>
+                <PlacesAutocomplete
+                  inputProps={inputProps}
+                  onSelect={this.handleSelect}
+                  classNames={{ input: "form-control" }}
+                />
               </FormGroup>
             </div>
           }
@@ -136,13 +177,23 @@ class CombineScan extends Component {
         <AnnotatedSection
           annotationContent={
             <div>
-              <FontAwesomeIcon fixedWidth style={{paddingTop:"3px", marginRight:"6px"}} icon={faWrench}/>
-              Actionskcije
+              <FontAwesomeIcon
+                fixedWidth
+                style={{ paddingTop: "3px", marginRight: "6px" }}
+                icon={faWrench}
+              />
+              Actions
             </div>
           }
           panelContent={
             <div>
-              <Button disabled={this.state.buttonDisabled} color="primary" onClick={this.handleMergeProducts}>Spoji otpad</Button>
+              <Button
+                disabled={this.state.buttonDisabled}
+                color="primary"
+                onClick={this.handleMergeProducts}
+              >
+                Combine waste
+              </Button>
             </div>
           }
         />
