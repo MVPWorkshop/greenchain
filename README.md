@@ -21,7 +21,8 @@ Made using the Truffle toolkit, React.js, Redux, and Webpack.
 
 ## Screenshot
 
-![scrot](https://user-images.githubusercontent.com/8457808/38819232-d35aed1e-4168-11e8-90e7-1d74fe726729.png)
+![scrot](https://user-images.githubusercontent.com/6010234/50397036-e49f8500-076d-11e9-8155-2e0469575d8d.png)
+![scrot](https://user-images.githubusercontent.com/6010234/50397037-e49f8500-076d-11e9-94c7-3344c1684c41.png)
 
 ## Installing / Getting started
 
@@ -98,28 +99,6 @@ You're free to deploy the generated front-end bundle wherever you see fit. As fo
 * See the product's previous positions on a map
 * Combine products into one
 * Split a product into many (WIP)
-
-# Contributing
-
-For bug fixes, documentation changes, and small features:  
-
-1. [Fork it](https://github.com/maximevaillancourt/trace/fork)
-2. Create your feature branch (`git checkout -b my-new-feature`)  
-3. Commit your changes (`git commit -am 'Add some feature'`) using [GPG signing](https://help.github.com/articles/signing-commits-using-gpg/)
-4. Push to the branch (`git push origin my-new-feature`)  
-5. Create a new Pull Request
-
-For larger new features: do everything as above, but first also make contact with the project maintainers to be sure your change fits with the project direction and you won't be wasting effort going in the wrong direction
-
-## Links
-
-- Repository: https://github.com/maximevaillancourt/trace
-- Issue tracker: https://github.com/maximevaillancourt/trace/issues
-- Related projects:
-  - Provenance: http://provenance.org/
-  - SCTS: https://github.com/AtrauraBlockchain/scts
-  - Phinomenal: https://github.com/phi-nomenal/phi-nomenal
-  - Sawtooth Lake traceability example: https://provenance.sawtooth.me/
 
 ## Licensing
 
