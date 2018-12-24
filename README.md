@@ -2,22 +2,22 @@
 
 # Greenchain
 
-> A transparent supply chain management platform with end users in mind.
+>  Technology that makes Circular Economy our safe future.
 
-Greenchain is a decentralized application based on the Ethereum blockchain aiming to
-let consumers see the data behind the products they buy every day. It currently 
-allows industry experts to add products to the app, as well as create certifications
-that can be added to products. A mobile companion app (not developed yet) would 
-allow scanning Greenchain QR codes placed on the actual products to see the data
-on-premise (e.g. at the grocery store).
+GREENCHAIN’s goal is to mitigate environmental threats and to foster economic growth by enabling implementation of the pragmatic circular economy modules through tight and transparent monitoring of the waste supply chain, considering it a valuable resource and providing all the concerned parties to interact in ways they could never before by opening the door to an exciting future.
 
-Keep in mind that **this is a proof of concept**. It is *not* production ready by any means. However, we do invite you to play around with the project and use it as you see fit. There are some rough edges, so we definitely appreciate your help in improving the platform.
+Greenchain is technology that can provide accountability to waste supply chain, both from the waste generation side as well as from the waste treatment end.
 
-This project was developed under the supervision of Bessam Abdulrazak, director of the [Ambient Intelligence Lab](https://ami.usherbrooke.ca/welcome/en-lab/) at Université de Sherbrooke.
+## Greenchain
+Greenchain PoC is a decentralized application based on the Ethereum, based on the work on [Trace project](https://github.com/maximevaillancourt/trace). It currently 
+allows stakeholders to add waste management details to the app, as well as create certifications
+that can be added to data. A mobile companion app 
+allows scanning Greenchain QR codes placed on the actual products to see the data
+on-premise (e.g. at the recycling factory).
+
+Keep in mind that **this is not production ready by any means**.
 
 Made using the Truffle toolkit, React.js, Redux, and Webpack.
-
-Logo design by [Laurence Mailhiot](https://twitter.com/mailhiotlaur).
 
 ## Screenshot
 
