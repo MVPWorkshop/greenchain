@@ -6,7 +6,7 @@
 
 GREENCHAIN’s goal is to mitigate environmental threats and to foster economic growth by enabling implementation of the pragmatic circular economy modules through tight and transparent monitoring of the waste supply chain, considering it a valuable resource and providing all the concerned parties to interact in ways they could never before by opening the door to an exciting future.
 
-Greenchain is technology that can provide accountability to waste supply chain, both from the waste generation side as well as from the waste treatment end.
+Greenchain is technology that can provide accountability to waste supply chain, both from the waste generation side as well as from the waste treatment end. The design principle behind solution is to enable free ﬂow of waste and waste management information, aiming at removing current barriers to data interoperability, enabling transparency and access to respective information in real time, supporting such implementation of the circular economy concept.
 
 ## Greenchain
 Greenchain PoC is a decentralized application based on the Ethereum, based on the work on [Trace project](https://github.com/maximevaillancourt/trace). It currently 
