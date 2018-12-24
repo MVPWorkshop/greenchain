@@ -21,16 +21,16 @@ Made using the Truffle toolkit, React.js, Redux, and Webpack.
 
 ## Screenshot
 
-![scrot](https://user-images.githubusercontent.com/6010234/50397036-e49f8500-076d-11e9-8155-2e0469575d8d.png)
 ![scrot](https://user-images.githubusercontent.com/6010234/50397037-e49f8500-076d-11e9-94c7-3344c1684c41.png)
+![scrot](https://user-images.githubusercontent.com/6010234/50397036-e49f8500-076d-11e9-8155-2e0469575d8d.png)
 
 ## Installing / Getting started
 
 0. Clone the repo:
 
     ```shell
-    git clone https://github.com/maximevaillancourt/trace.git
-    cd trace
+    git clone https://github.com/MVPWorkshop/greenchain.git
+    cd greenchain
     ```
     
 1. Install the Truffle toolkit globally and install project dependencies:
@@ -92,9 +92,9 @@ You're free to deploy the generated front-end bundle wherever you see fit. As fo
 
 ## Features
 
-* Add a product to the platform
-* Search for a particular product
-* Add certifications to products (e.g. "biological", "non-GMO", etc.)
+* Add a waste data to the platform
+* Search for a particular waste
+* Add certifications to data (e.g. "pet", etc.)
 * Browse a product's version history
 * See the product's previous positions on a map
 * Combine products into one
