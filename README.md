@@ -1,4 +1,4 @@
-![logo](https://raw.githubusercontent.com/MVPWorkshop/greenchain/master/public/logo-greenchain.png)
+![logo](https://raw.githubusercontent.com/MVPWorkshop/greenchain/master/public/logo-white.png)
 
 # Greenchain
 
